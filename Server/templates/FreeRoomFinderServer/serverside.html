@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dal Free Room Finder</title>
+</head>
+<body>
+    {% load static %}
+    <span>
+    <label for="search">Search </label>
+    <input type="text" id="search">
+    </span>
+
+    <script
+			  src="https://code.jquery.com/jquery-3.2.1.min.js"
+			  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+			  crossorigin="anonymous"></script>
+    <script src="{% static "FreeRoomFinderServer/underscore-min.js" %}"></script>
+    <script src="{% static "FreeRoomFinderServer/serverside.ts" %}"></script>
+</body>
+</html>

@@ -19,7 +19,7 @@ class Scrape:
                 "PROS", "PSYR", "PSYO", "PUAD", "RADT", "REGN", "RELS", "RSPT", "RUSN", "SCIE", "SLWK", "SOSA", "SPAN",
                 "STAT", "SUST", "THEA", "TYPR", "VISC"]
     campuses = ["Truro", "Halifax", "Carleton"]
-    delay = 1
+    delay = 0.1
 
     @staticmethod
     def create_url(year, semester, subject, page, campus):
@@ -83,11 +83,15 @@ class Scrape:
         tables = pagebodydiv.find_all("table", class_="dataentrytable", recursive=True)
         if not tables:  # the results table is blank
             return 0
-        table_outer = tables[1]  # get the second dataentrytable, which contains the courses
-        table_inner = table_outer.find("tbody")
-        rows = table_outer.find_all("tr")
+        try:
+            table = tables[1]  # get the second dataentrytable, which contains the courses
+        except IndexError:
+            return 0
+        rows = table.find_all("tr")
+
+        # the first two rows are headers, which we ignore
         rows.pop(0)
-        rows.pop(0)  # the first two rows are headers, which we ignore
+        rows.pop(0)
 
         while rows:
             header = rows.pop(0)  # get the row with the course name
@@ -108,26 +112,17 @@ class Scrape:
                             s = p.text
                         else:
                             s = col.text"""
-                        s = col.text
+                        s = col.text.replace("$&nbsp", "")
                         if not s:
                             continue
                     except AttributeError: # The column is empty
                         continue
-                    s_clean = s.replace("<br>", "").replace("<br />", "")
-                    if re.match("^([A-Z])((<.+)|)",
-                                s):  # day: is in the format A< followed by anything, where A is any letter
-                        days.append(s[0])  # we only want that first letter
-                    elif re.match("((.+>)|)([A-Z])$",
-                                  s):  # day: is in the format >A preceded by anything, where A is any letter
-                        days.append(s[-1])  # we only want that last letter
-                    elif re.match("^\d{4}-\d{4}<.+",
-                                  s):  # time: is in the format ####-#### and ####-####< with anything after it
-                        time = s[:10]  # want first ten characters
-                    elif re.match("(.+>|)\d{4}-\d{4}$",
-                                  s):  # time: is in the format ####-#### and >####-#### with anything before it
-                        time = s[-9:]  # want last ten characters
-                    elif len(s_clean) > 20:
-                        room = s_clean
+                    if re.match(r"^([A-Z])$", s):  # day: single character
+                        days.append(s)
+                    elif re.match(r"^\d{4}-\d{4}", s):  # time: is in the format ####-#### with anything after it
+                        time = s[:10] # if multiple time slots, the first is most important
+                    elif len(s) > 20:
+                        room = s
                         break  # room is last object we want; don't want to overwrite it with prof's name
 
                 if not days or not time or not room:  # probably a header, not a room
@@ -152,16 +147,19 @@ class Scrape:
                     "m": int(time[7:])
                 }
 
+                # prettify room
+                room = room.replace("&nbsp", "")
+                room = re.sub(r"\*\*\*.+\*\*\*", "", room)  # remove *** messages like this ***
+
                 # register a room
                 split = room.split()
                 campus = split.pop(0)  # campus is the first word
                 number = split.pop()  # room number is usually the last word
-                room_obj = Room.objects.update_or_create(
+                room_obj, created = Room.objects.update_or_create(
                     campus=campus,
-                    building=split,
+                    building=" ".join(split),
                     number=number
                 )
-                room.save()
                 num_rooms_found += 1
 
                 # register a room booking for each weekday
