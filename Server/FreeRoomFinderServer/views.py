@@ -19,7 +19,7 @@ def db(request):
 
 
 def main(request):
-    return render(request, "FreeRoomFinderServer/serverside.html", context=None)
+    return render(request, "FreeRoomFinderServer/main.html", context=None)
 
 
 def api(request):

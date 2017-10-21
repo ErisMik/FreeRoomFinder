@@ -5,8 +5,47 @@
     <title>Dal Free Room Finder</title>
 </head>
 <body>
-    {% load static %}
-    <script src="{% static "FreeRoomFinderServer/sql.js" %}"></script>
-    <script src="{% static "FreeRoomFinderServer/main.js" %}"></script>
+{% load static %}
+<span>
+    <label for="search">Search </label>
+    <input type="text" id="search">
+    </span>
+<span>
+    <label for="time">Time </label>
+    <input id="time" type="text">
+    <input id="timenow" type="button" value="Now">
+</span>
+<span>
+    <label for="day">Day </label>
+    <input type="text" id="day">
+</span>
+
+<div id="bookinglist">
+
+    <input class="search" placeholder="Search"/>
+    <button class="sort" data-sort="name">
+        Sort
+    </button>
+
+    <ul class="list">
+    </ul>
+
+</div>
+
+<script
+        src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+<script type="text/javascript" src="http://jonthornton.github.io/jquery-timepicker/jquery.timepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="http://jonthornton.github.io/jquery-timepicker/jquery.timepicker.css">
+<script type="text/javascript"
+        src="http://jonthornton.github.io/jquery-timepicker/lib/bootstrap-datepicker.js"></script>
+<link rel="stylesheet" type="text/css"
+      href="http://jonthornton.github.io/jquery-timepicker/lib/bootstrap-datepicker.css">
+
+<script src="{% static "FreeRoomFinderServer/sql.js" %}"></script>
+<script src="{% static "FreeRoomFinderServer/underscore-min.js" %}"></script>
+<script src="{% static "FreeRoomFinderServer/main.js" %}"></script>
 </body>
 </html>
