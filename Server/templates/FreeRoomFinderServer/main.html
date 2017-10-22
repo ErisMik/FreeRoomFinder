@@ -7,22 +7,24 @@
 <body>
 {% load static %}
 <span>
-    <label for="search">Search </label>
-    <input type="text" id="search">
-    </span>
-<span>
     <label for="time">Time </label>
-    <input id="time" type="text">
+    <input id="time" name="time" type="text">
     <input id="timenow" type="button" value="Now">
 </span>
 <span>
     <label for="day">Day </label>
-    <input type="text" id="day">
+    <select id="day" name="day">
+        <option value="Monday">Monday</option>
+        <option value="Tuesday">Tuesday</option>
+        <option value="Wednesday">Wednesday</option>
+        <option value="Thursday">Thursday</option>
+        <option value="Friday">Friday</option>
+    </select>
 </span>
 
 <div id="bookinglist">
 
-    <input class="search" placeholder="Search"/>
+    <input type="text" class="fuzzy-search" placeholder="Search"/>
     <button class="sort" data-sort="name">
         Sort
     </button>
@@ -36,7 +38,7 @@
         src="https://code.jquery.com/jquery-3.2.1.min.js"
         integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
         crossorigin="anonymous"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.js"></script>
 <script type="text/javascript" src="http://jonthornton.github.io/jquery-timepicker/jquery.timepicker.js"></script>
 <link rel="stylesheet" type="text/css" href="http://jonthornton.github.io/jquery-timepicker/jquery.timepicker.css">
 <script type="text/javascript"
