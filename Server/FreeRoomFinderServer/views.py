@@ -7,7 +7,7 @@ from FreeRoomFinderServer.models import RoomBookedSlot, Room, Tag
 
 def refresh(request):
     Scrape.register_all_subjects_in_semester(year=2017, semester="Fall", campus="Halifax")
-    return "Success"
+    return HttpResponse("Success")
 
 
 def db(request):
