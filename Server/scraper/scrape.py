@@ -1,4 +1,5 @@
 from urllib.request import urlopen
+import bs4
 from bs4 import BeautifulSoup
 from FreeRoomFinderServer.models import Room, RoomBookedSlot
 import re
@@ -18,7 +19,7 @@ class Scrape:
                 "PATH", "PERF", "PERI", "PHAC", "PHAR", "PHIL", "PHYC", "PHYL", "PHYT", "PLAN", "POLI", "PGPH", "PEAS",
                 "PROS", "PSYR", "PSYO", "PUAD", "RADT", "REGN", "RELS", "RSPT", "RUSN", "SCIE", "SLWK", "SOSA", "SPAN",
                 "STAT", "SUST", "THEA", "TYPR", "VISC"]
-    campuses = ["Truro", "Halifax", "Carleton"]
+    campuses = ["Truro", "Halifax"]
     delay = 0.1
 
     @staticmethod
@@ -41,7 +42,7 @@ class Scrape:
         elif semester.lower == "summer":
             semester = 30
         else:
-            raise KeyError()
+            raise KeyError("Invalid semester")
 
         index = page * 20 + 1
 
@@ -49,6 +50,8 @@ class Scrape:
             campus = 100
         elif campus.lower() == "truro":
             campus = 200
+        else:
+            raise KeyError("Invalid campus")
 
         url = Scrape.url.format(year=year, semester=semester, subject=subject, index=index, campus=campus)
         print(url)
@@ -63,7 +66,7 @@ class Scrape:
         """
         sleep(Scrape.delay) # prevent spamming the page
         page = urlopen(url)  # download the page
-        soup = BeautifulSoup(page, "lxml")  # convert it to a BeautifulSoup data structure
+        soup = BeautifulSoup(page, "html5lib")  # convert it to a BeautifulSoup data structure
         return soup
 
     @staticmethod
@@ -98,82 +101,125 @@ class Scrape:
             course = header.find("td", class_="detthdr").find("b").string  # course name
             while rows and not rows[0].get("valign"):  # iterate over the rows with room info and notices
                 row = rows.pop(0)
-
-                # detect days and times
-                days = []
-                time = ""
-                room = ""
-                for col in row.find_all("td"):
-                    # TODO: A bug may occur when there are multiple time slots within a single column
-                    # as when it shows a different day for Dec 5
-                    try:
-                        """p = col.find("p")
-                        if p:
-                            s = p.text
-                        else:
-                            s = col.text"""
-                        s = col.text.replace("$&nbsp", "")
-                        if not s:
-                            continue
-                    except AttributeError: # The column is empty
-                        continue
-                    if re.match(r"^([A-Z])$", s):  # day: single character
-                        days.append(s)
-                    elif re.match(r"^\d{4}-\d{4}", s):  # time: is in the format ####-#### with anything after it
-                        time = s[:10] # if multiple time slots, the first is most important
-                    elif len(s) > 20:
-                        room = s
-                        break  # room is last object we want; don't want to overwrite it with prof's name
-
-                if not days or not time or not room:  # probably a header, not a room
+                if not row:
                     continue
 
-                day_conversion = {
-                    "M": "Monday",
-                    "T": "Tuesday",
-                    "W": "Wednesday",
-                    "R": "Thursday",
-                    "F": "Friday",
-                }
+                # for multirow entries defined by <br>s, separate them into individual rows
+                raw_columns = row.find_all("td")
+                columns = []
+                for col in raw_columns:
+                    column = []
+                    root = col
+                    if "<p " in str(col.contents) or "<b " in str(col.contents):
+                        root = col.contents[0]
+                    for i, tag in enumerate(root.contents):
+                        if "<br" in str(tag):  # if the tag is a line break
+                            if i == 0 or str(root.contents[i-1]).strip() == "":  # and it is the first, tag or the previous tag was blank
+                                column.append(tag)  # then append a single line break
+                            if i+1 != len(root.contents) and "<br" in str(root.contents[i+1]): # and the next tag is a line break
+                                column.append(tag)  # then append a single line break
+                        elif str(tag).strip() == "":  # if the tag is empty
+                            pass  # then do nothing
+                        else:  # if the tag is not a line break
+                            column.append(tag)  # then append it
+                    columns.append(column)
+                subrows = []
+                while True:
+                    at_least_one_not_empty = False
+                    subrow = []
+                    for col in columns:
+                        if col:
+                            tag = col.pop(0)
+                            subrow.append(tag)
+                            at_least_one_not_empty = True
+                        else:
+                            subrow.append("")
+                    subrows.append(subrow)
+                    if not at_least_one_not_empty:
+                        break
 
-                days = [day_conversion[day] for day in days]
+                ignore_next_subrow = False  # some courses are in a certain room only on Dec 5, if we find a message saying the next booking is only that day, we want to ignore it
 
-                start_time = {
-                    "h": int(time[:2]),
-                    "m": int(time[2:4])
-                }
-                end_time = {
-                    "h": int(time[5:7]),
-                    "m": int(time[7:])
-                }
+                for subrow in subrows:
 
-                # prettify room
-                room = room.replace("&nbsp", "")
-                room = re.sub(r"\*\*\*.+\*\*\*", "", room)  # remove *** messages like this ***
+                    if ignore_next_subrow:
+                        ignore_next_subrow = False
+                        continue
 
-                # register a room
-                split = room.split()
-                campus = split.pop(0)  # campus is the first word
-                number = split.pop()  # room number is usually the last word
-                room_obj, created = Room.objects.update_or_create(
-                    campus=campus,
-                    building=" ".join(split),
-                    number=number
-                )
-                num_rooms_found += 1
+                    # detect days and times
+                    days = []
+                    time = ""
+                    room = ""
 
-                # register a room booking for each weekday
-                for day in days:
-                    slot = RoomBookedSlot(
-                        start_time=datetime.time(start_time["h"], start_time["m"]),
-                        end_time=datetime.time(end_time["h"], end_time["m"]),
-                        occasion=course,
-                        room=room_obj,
-                        semester=semester,
-                        year=year,
-                        weekday=day
+                    for value in subrow:
+                        if type(value) == bs4.element.NavigableString or type(value) == str:
+                            s = str(value)
+                        elif type(value) == bs4.element.Tag:
+                            s = value.text
+                        else:
+                            raise ValueError("actual type: {}".format(type(value)))
+
+                        if "*** 05-DEC-2017 - 05-DEC-2017 ***" in s:
+                            ignore_next_subrow = True
+                            continue  # we want to ignore /this/ subrow too, since rows with this message don't have a course listed
+
+                        if re.match(r"^([A-Z])$", s):  # day: single character
+                            days.append(s)
+                        elif re.match(r"^\d{4}-\d{4}", s):  # time: is in the format ####-#### with anything after it
+                            time = s[:10] # if multiple time slots, the first is most important
+                        elif len(s) > 20:
+                            room = s
+                            break  # room is last object we want; don't want to overwrite it with prof's name
+
+                    if not days or not time or not room:  # probably a header, not a room
+                        continue
+
+                    day_conversion = {
+                        "M": "Monday",
+                        "T": "Tuesday",
+                        "W": "Wednesday",
+                        "R": "Thursday",
+                        "F": "Friday",
+                    }
+
+                    days = [day_conversion[day] for day in days]
+
+                    start_time = {
+                        "h": int(time[:2]),
+                        "m": int(time[2:4])
+                    }
+                    end_time = {
+                        "h": int(time[5:7]),
+                        "m": int(time[7:])
+                    }
+
+                    # prettify room
+                    room = room.replace("&nbsp", "")
+                    room = re.sub(r"\*\*\*.+\*\*\*", "", room)  # remove *** messages like this ***
+
+                    # register a room
+                    split = room.split()
+                    campus = split.pop(0)  # campus is the first word
+                    number = split.pop()  # room number is usually the last word
+                    room_obj, created = Room.objects.update_or_create(
+                        campus=campus,
+                        building=" ".join(split),
+                        number=number
                     )
-                    slot.save()
+                    num_rooms_found += 1
+
+                    # register a room booking for each weekday
+                    for day in days:
+                        slot = RoomBookedSlot(
+                            start_time=datetime.time(start_time["h"], start_time["m"]),
+                            end_time=datetime.time(end_time["h"], end_time["m"]),
+                            occasion=course,
+                            room=room_obj,
+                            semester=semester,
+                            year=year,
+                            weekday=day
+                        )
+                        slot.save()
 
         return num_rooms_found
 
