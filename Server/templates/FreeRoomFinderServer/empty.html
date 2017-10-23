@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Empty Classrooms at Dal</title>
+</head>
+<body>
+{% load static %}
+
+<h1>Empty Classrooms at Dal</h1>
+
+<div id="emptylist">
+
+    <table class="nav">
+        <thead>
+        <tr>
+            <th><label for="time">Time</label></th>
+            <th><label for="day">Day</label></th>
+            <th><label for="search">Search</label></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><input id="time" name="time">
+                <button id="timenow">Now</button>
+            </td>
+            <td>
+                <select id="day" name="day">
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                </select>
+            </td>
+            <td>
+                <input id="fuzzy-search" type="text" class="fuzzy-search" placeholder="Fuzzy search"/>
+                <input id="search" type="text" class="search" placeholder="Literal search"/>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table>
+        <thead>
+        <th class="sort" data-sort="room">
+            <button>Room</button>
+        </th>
+        <th class="sort" data-sort="last_end_time">
+            <button>Last Class Ended</button>
+        </th>
+        <th class="sort" data-sort="next_start_time">
+            <button>Next Class Starts</button>
+        </th>
+        </thead>
+        <tbody class="list">
+
+        </tbody>
+    </table>
+
+</div>
+
+<footer>
+    Ⓒ 2017 Peter Fajner pfaj.ca
+</footer>
+
+<script
+        src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.js"></script>
+<script type="text/javascript" src="//jonthornton.github.io/jquery-timepicker/jquery.timepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="http://jonthornton.github.io/jquery-timepicker/jquery.timepicker.css">
+<script type="text/javascript"
+        src="//jonthornton.github.io/jquery-timepicker/lib/bootstrap-datepicker.js"></script>
+<link rel="stylesheet" type="text/css"
+      href="http://jonthornton.github.io/jquery-timepicker/lib/bootstrap-datepicker.css">
+<link rel="stylesheet" type="text/css" href="{% static "FreeRoomFinderServer/style.css" %}">
+
+<script src="{% static "FreeRoomFinderServer/sql.js" %}"></script>
+<script src="{% static "FreeRoomFinderServer/underscore-min.js" %}"></script>
+<script src="{% static "FreeRoomFinderServer/empty.js" %}"></script>
+</body>
+</html>

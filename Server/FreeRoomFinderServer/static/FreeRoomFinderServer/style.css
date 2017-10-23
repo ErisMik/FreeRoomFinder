@@ -1,4 +1,4 @@
-@media screen and (max-width: 480px) {
+/*@media screen and (max-width: 480px) {
     .nav {
         width: 100%;
         display: flex;
@@ -11,6 +11,10 @@
         display: flex;
         flex-direction: row;
     }
+}*/
+
+.nav * {
+    height: 50px;
 }
 
 body * {
@@ -21,6 +25,7 @@ body * {
 .list th {
     padding: 5px;
 }
+
 .list td {
     padding: 5px;
 }
@@ -31,5 +36,5 @@ button {
 }
 
 table tbody tr:nth-child(even) {
-  background-color: #DDD;
+    background-color: #DDD;
 }

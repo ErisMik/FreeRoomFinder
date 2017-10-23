@@ -20,6 +20,13 @@ class Scrape:
                 "PROS", "PSYR", "PSYO", "PUAD", "RADT", "REGN", "RELS", "RSPT", "RUSN", "SCIE", "SLWK", "SOSA", "SPAN",
                 "STAT", "SUST", "THEA", "TYPR", "VISC"]
     campuses = ["Truro", "Halifax"]
+    day_conversion = {
+        "M": "Monday",
+        "T": "Tuesday",
+        "W": "Wednesday",
+        "R": "Thursday",
+        "F": "Friday",
+    }
     delay = 0.1
 
     @staticmethod
@@ -173,14 +180,6 @@ class Scrape:
 
                     if not days or not time or not room:  # probably a header, not a room
                         continue
-
-                    day_conversion = {
-                        "M": "Monday",
-                        "T": "Tuesday",
-                        "W": "Wednesday",
-                        "R": "Thursday",
-                        "F": "Friday",
-                    }
 
                     days = [day_conversion[day] for day in days]
 

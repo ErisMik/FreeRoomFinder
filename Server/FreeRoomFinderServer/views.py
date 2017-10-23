@@ -1,8 +1,12 @@
 from django.shortcuts import render
 from scraper.scrape import Scrape
 from Server import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from FreeRoomFinderServer.models import RoomBookedSlot, Room, Tag
+import datetime
+import re
+from scraper.empty import Empty, EmptyRooms
+import json
 
 
 def refresh(request):
@@ -23,12 +27,58 @@ def db(request):
         return response
 
 
-def main(request):
+def bookings(request):
     return render(request, "FreeRoomFinderServer/main.html", context=None)
 
 
 def api(request):
     search_term = request.GET.get("search", "")
     if not search_term:
-        return None
-    matching_rooms = Room.objects.filter()
+        return HttpResponseBadRequest("Missing 'search' parameter")
+    if search_term == "empty":  # get empty classrooms
+
+        # get the time
+        time = request.GET.get("time", "")
+        if not time:
+            time = datetime.datetime.now().time()
+        elif re.match(r"(\d{1}|\d{2}):\d{2}(|:\d{2})", time):
+            split = time.split(":")
+            time = datetime.time(hour=int(split[0]), minute=int(split[1]))
+        else:
+            return HttpResponseBadRequest("Malformed 'time' parameter, must be HH:MM or HH:MM:SS")
+
+        # get the weekday
+        weekday = request.GET.get("weekday", "")
+        if not weekday:
+            weekday = datetime.datetime.now().strftime("%A")  # today's day of the week
+        elif weekday in Scrape.day_conversion:
+            weekday = Scrape.day_conversion[weekday]
+        elif weekday in Scrape.day_conversion.values():
+            pass
+        else:
+            return HttpResponseBadRequest("Malformed 'weekday' parameter, must be in the form 'M' or 'Monday'")
+
+        # set the year
+        year = datetime.datetime.now().year
+
+        # semester
+        month = datetime.datetime.now().month
+        if month <= 4:
+            semester = "Winter"
+        elif month <= 8:
+            semester = "Summer"
+        else:
+            semester = "Fall"
+
+        empty_rooms: EmptyRooms = Empty.find_empty(time=time, weekday=weekday, semester=semester, year=year)
+        empty_rooms_json: str = json.dumps(empty_rooms, sort_keys=True, indent=4)
+        return HttpResponse(empty_rooms_json)
+
+
+def empty(request):
+    """
+    A page that shows empty rooms
+    :param request: 
+    :return: 
+    """
+    return render(request, "FreeRoomFinderServer/empty.html", context=None)

@@ -23,5 +23,7 @@ urlpatterns = [
     url(r'db', views.db),
     url(r"api", views.api),
     url(r"part", views.partial_refresh),
-    url(r"", views.main),
+    url(r"empty", views.empty),
+    url(r"bookings", views.bookings),
+    url(r"", views.empty),
 ]
