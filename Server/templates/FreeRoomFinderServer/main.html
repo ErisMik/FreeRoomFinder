@@ -2,17 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dal Free Room Finder</title>
 </head>
 <body>
 {% load static %}
-<span>
-    <label for="time">Time </label>
-    <input id="time" name="time" type="text">
-    <input id="timenow" type="button" value="Now">
-</span>
-<span>
-    <label for="day">Day </label>
+
+<div id="bookinglist">
+
+    <span class="nav">
     <select id="day" name="day">
         <option value="Monday">Monday</option>
         <option value="Tuesday">Tuesday</option>
@@ -20,19 +18,47 @@
         <option value="Thursday">Thursday</option>
         <option value="Friday">Friday</option>
     </select>
-</span>
-
-<div id="bookinglist">
-
-    <input type="text" class="fuzzy-search" placeholder="Search"/>
-    <button class="sort" data-sort="name">
-        Sort
+    <input type="text" class="fuzzy-search" placeholder="Fuzzy search"/>
+    <input type="text" class="search" placeholder="Literal search"/>
+    </span>
+    <!--<button class="sort" data-sort="room">
+        Sort by Room
     </button>
+    <button class="sort" data-sort="subject">
+        Sort by Subject
+    </button>
+    <button class="sort" data-sort="starttime">
+        Sort by Start Time
+    </button>
+    <button class="sort" data-sort="endtime">
+        Sort by End Time
+    </button>-->
 
-    <ul class="list">
-    </ul>
+    <table>
+        <thead>
+        <th class="sort" data-sort="room">
+            <button>Room</button>
+        </th>
+        <th class="sort" data-sort="subject">
+            <button>Subject</button>
+        </th>
+        <th class="sort" data-sort="starttime">
+            <button>Start Time</button>
+        </th>
+        <th class="sort" data-sort="endtime">
+            <button>End Time</button>
+        </th>
+        </thead>
+        <tbody class="list">
+
+        </tbody>
+    </table>
 
 </div>
+
+<footer>
+    Ⓒ 2017 Peter Fajner pfaj.ca
+</footer>
 
 <script
         src="https://code.jquery.com/jquery-3.2.1.min.js"
@@ -45,6 +71,7 @@
         src="http://jonthornton.github.io/jquery-timepicker/lib/bootstrap-datepicker.js"></script>
 <link rel="stylesheet" type="text/css"
       href="http://jonthornton.github.io/jquery-timepicker/lib/bootstrap-datepicker.css">
+<link rel="stylesheet" type="text/css" href="{% static "FreeRoomFinderServer/style.css" %}">
 
 <script src="{% static "FreeRoomFinderServer/sql.js" %}"></script>
 <script src="{% static "FreeRoomFinderServer/underscore-min.js" %}"></script>
