@@ -10,11 +10,16 @@ def refresh(request):
     return HttpResponse("Success")
 
 
+def partial_refresh(request):
+    Scrape.register_all_pages_in_subject(subject="ANAT", year=2017, semester="Fall", campus="Halifax")
+    return HttpResponse("Success")
+
+
 def db(request):
     db_path = settings.DATABASES["default"]["NAME"]
     with open(db_path, mode="rb") as f:
         response = HttpResponse(f, content_type='application/sql')
-        response['Content-Disposition'] = 'attachment; filename="room_schedule.sql"'
+        response['Content-Disposition'] = 'attachment; filename="room_schedule.sqlite"'
         return response
 
 
