@@ -1,0 +1,35 @@
+@media screen and (max-width: 480px) {
+    .nav {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+}
+@media screen and (min-width: 480px) {
+    .nav {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+    }
+}
+
+body * {
+    font-family: sans-serif;
+    font-size: 20px;
+}
+
+.list th {
+    padding: 5px;
+}
+.list td {
+    padding: 5px;
+}
+
+button {
+    font-size: 20px;
+    height: 50px;
+}
+
+table tbody tr:nth-child(even) {
+  background-color: #DDD;
+}
