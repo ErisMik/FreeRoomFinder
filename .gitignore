@@ -1,3 +1,7 @@
 Server/.idea/
 Server/Server/__pycache__/
 Server/FreeRoomFinderServer/__pycache__/views.cpython-35.pyc
+.idea/
+Server/FreeRoomFinderServer/__pycache__/
+Server/scraper/__pycache__/
+Server/FreeRoomFinderServer/migrations/__pycache__/
