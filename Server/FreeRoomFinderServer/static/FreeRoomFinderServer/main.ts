@@ -71,7 +71,7 @@ $("#day").change(refreshList);
 function refreshList(): void {
     // only show bookings for the current weekday
     let values = [];
-    let weekday = $("#day").val();
+    let weekday = $("#day").val();  // TODO: set weekday automatically
     bookingsList.clear();
     let valuesToAdd = [];
     for (let i = 0; i < allBookingValues.length; i++) {
