@@ -9,14 +9,14 @@ from scraper.empty import Empty, EmptyRooms
 import json
 
 
-def refresh(request):
+"""def refresh(request):
     Scrape.register_all_subjects_in_semester(year=2017, semester="Fall", campus="Halifax")
-    return HttpResponse("Success")
+    return HttpResponse("Success")"""
 
 
-def partial_refresh(request):
+"""def partial_refresh(request):
     Scrape.register_all_pages_in_subject(subject="ANAT", year=2017, semester="Fall", campus="Halifax")
-    return HttpResponse("Success")
+    return HttpResponse("Success")"""
 
 
 def db(request):
