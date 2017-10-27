@@ -19,10 +19,10 @@ from FreeRoomFinderServer import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'refresh', views.refresh),
+    #url(r'refresh', views.refresh),
     url(r'db', views.db),
     url(r"api", views.api),
-    url(r"part", views.partial_refresh),
+    #url(r"part", views.partial_refresh),
     url(r"empty", views.empty),
     url(r"bookings", views.bookings),
     url(r"", views.empty),
