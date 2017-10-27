@@ -24,7 +24,18 @@ function init() {
         timeElement.timepicker('setTime', new Date());
     });
     timeNowButton.trigger("click");
-    // TODO: set weekday to today
+    // set weekday to today
+    var weekdayTable = {
+        0: "Sunday",
+        1: "Monday",
+        2: "Tuesday",
+        3: "Wednesday",
+        4: "Thursday",
+        5: "Friday",
+        6: "Saturday",
+    };
+    var d = new Date().getDay();
+    weekdayElement.val(weekdayTable[d]);
     // set up sorting
     var options = {
         valueNames: ["room", "next_start_time", "last_end_time"],

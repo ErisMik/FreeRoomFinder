@@ -32,7 +32,18 @@ function init() {
     });
     timeNowButton.trigger("click");
 
-    // TODO: set weekday to today
+    // set weekday to today
+    let weekdayTable = {
+        0: "Sunday",
+        1: "Monday",
+        2: "Tuesday",
+        3: "Wednesday",
+        4: "Thursday",
+        5: "Friday",
+        6: "Saturday",
+    }
+    let d = new Date().getDay();
+    weekdayElement.val(weekdayTable[d]);
 
     // set up sorting
     let options = {
