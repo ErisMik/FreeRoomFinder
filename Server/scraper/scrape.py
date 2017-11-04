@@ -6,8 +6,178 @@ import re
 import datetime
 from time import sleep
 
-
 class Scrape:
+    base_url = "https://courses.students.ubc.ca/cs/main?pname=subjarea&tname=subjareas&req=0"
+    subject_url = "https://courses.students.ubc.ca/cs/main?pname=subjarea&tname=subjareas&req=1&dept={subject}"
+    course_url = "https://courses.students.ubc.ca/cs/main?pname=subjarea&tname=subjareas&req=3&dept={subject}&course={cid}"
+    section_url = "https://courses.students.ubc.ca/cs/main?pname=subjarea&tname=subjareas&req=5&dept={subject}&course={cid}&section={section}"
+
+    subjects = ["AANB", "ACAM", "ADHE", "AFST", "AGEC", "ANAT", "ANSC", "ANTH", "APBI", "APPP", "APSC", "ARBC", "ARC", "ARCH", "ARCL",
+                "ARST", "ARTH", "ARTS", "ASIA", "ASIC", "ASLA", "ASTR", "ASTU", "ATSC", "AUDI", "BA", "BAAC", "BABS", "BAEN", "BAFI",
+                "BAHC", "BAHR", "BAIM", "BAIT", "BALA", "BAMA", "BAMS", "BAPA", "BASC", "BASD", "BASM", "BATL", "BAUL", "BIOC", "BIOF",
+                "BIOL", "BIOT", "BMEG", "BOTA", "BRDG", "BUSI", "CAPS", "CCFI", "CCST", "CDST", "CEEN", "CELL", "CENS", "CHBE", "CHEM",
+                "CHIL", "CHIN", "CICS", "CIVL", "CLCH", "CLST", "CNPS", "CNRS", "CNTO", "COEC", "COGS", "COHR", "COMM", "COMR", "CONS",
+                "CPEN", "CPSC", "CRWR", "CSIS", "CSPW", "CTLN", "DANI", "DENT", "DERM", "DES", "DHYG", "DMED", "DSCI", "ECED", "ECON",
+                "ECPS", "EDCP", "EDST", "EDUC", "EECE", "ELEC", "ELI", "EMBA", "ENDS", "ENGL", "ENPH", "ENPP", "ENVR", "EOSC", "EPSE",
+                "ETEC", "EXCH", "EXGR", "FACT", "FEBC", "FHIS", "FIPR", "FISH", "FIST", "FMPR", "FMST", "FNEL", "FNH", "FNIS", "FOOD",
+                "FOPR", "FRE", "FREN", "FRSI", "FRST", "FSCT", "GBPR", "GEM", "GENE", "GEOB", "GEOG", "GERM", "GPP", "GREK", "GRS", "GRSJ",
+                "GSAT", "HEBR", "HESO", "HGSE", "HINU", "HIST", "HPB", "HUNU", "IAR", "IEST", "IGEN", "INDE", "INDO", "INDS", "INFO", "ISCI",
+                "ITAL", "ITST", "IWME", "JAPN", "JRNL", "KIN", "KORN", "LAIS", "LARC", "LASO", "LAST", "LATN", "LAW", "LFS", "LIBE", "LIBR",
+                "LING", "LLED", "LWS", "MATH", "MDVL", "MECH", "MEDD", "MEDG", "MEDI", "MGMT", "MICB", "MIDW", "MINE", "MRNE", "MTRL",
+                "MUSC", "NAME", "NEST", "NEUR", "NRSC", "NURS", "OBMS", "OBST", "OHS", "ONCO", "OPTH", "ORNT", "ORPA", "OSOT", "PAED",
+                "PATH", "PCTH", "PERS", "PHAR", "PHIL", "PHRM", "PHTH", "PHYL", "PHYS", "PLAN", "PLAS", "PLNT", "POLI", "POLS", "PORT",
+                "PSYC", "PSYT", "PUNJ", "RADI", "RELG", "RES", "RGLA", "RHSC", "RMST", "RSOT", "RUSS", "SANS", "SCAN", "SCIE", "SEAL",
+                "SGES", "SLAV", "SOAL", "SOCI", "SOIL", "SOWK", "SPAN", "SPHA", "SPPH", "STAT", "STS", "SURG", "SWED", "TEST", "THTR",
+                "TIBT", "TRSC", "UDES", "UFOR", "UKRN", "URO", "UROL", "URST", "URSY", "VANT", "VGRD", "VISA", "VRHC", "VURS", "WOOD",
+                "WRDS", "WRIT", "ZOOL"]
+    campuses = ["Vancouver",]
+
+    day_conversion = {
+        "Mon": "Monday",
+        "Tue": "Tuesday",
+        "Wed": "Wednesday",
+        "Thu": "Thursday",
+        "Fri": "Friday",
+    }
+    delay = 0.1
+
+    @staticmethod
+    def section_to_rooms(page):
+        """
+        """
+        room_found = False
+        table = body.find("table", class_="table", recursive=True)
+        table = table.find("tbody", recursive=True)
+        rows = table.find_all("tr", recursive=True)
+
+        for row in rows:
+            row = row.split("<td>")
+            for x in range(len(row)):
+                row[x].strip("</td>")
+
+            days = row[1]
+            days = [day_conversion[day] for day in days]
+
+            start_time = {
+                "h": int(row[2].split(":")[0]),
+                "m": int(row[2].split(":")[1])
+            }
+            end_time = {
+                "h": int(row[3].split(":")[0]),
+                "m": int(row[3].split(":")[1])
+            }
+
+
+            # register a room
+            room_obj, created = Room.objects.update_or_create(
+                campus="Vancouver",
+                building=row[4],
+                number=row[5].text
+            )
+            rooms_found = True
+
+            # register a room booking for each weekday
+            for day in days:
+                slot = RoomBookedSlot(
+                    start_time=datetime.time(start_time["h"], start_time["m"]),
+                    end_time=datetime.time(end_time["h"], end_time["m"]),
+                    occasion=course,
+                    room=room_obj,
+                    semester=row[0],
+                    year=year,
+                    weekday=day
+                )
+                slot.save()        
+
+        if rooms_found:
+            return 1
+        else:
+            return 0
+
+    @staticmethod
+    def course_to_rooms(page, subject, course):
+        """
+        """
+        sections = []
+        body = page.body
+        table = body.find("table", class_="section_summary", recursive=True)
+        table = table.find("tbody", recursive=True)
+        rows = table.find_all("tr", recursive=True)
+
+        for row in rows:
+            data = row.find("a", recursive=True)
+            sections.append(data.text.split()[-1])
+
+        for section in sections:
+            url = section_url.format({"subject":subject, "cid":course, "section":section})
+            page = Scrape.get_page(url)
+            rooms_found += Scrape.section_to_rooms(page)
+
+        return rooms_found
+
+    @staticmethod
+    def subject_to_rooms(page, subject):
+        """
+        """
+        courses = []
+        body = page.body
+        table = body.find("table", id_="mainTable", recursive=True)
+        table = table.find("tbody", recursive=True)
+        rows = table.find_all("tr", recursive=True)
+
+        for row in rows:
+            data = row.find("a", recursive=True)
+            courses.append(data.text.split()[-1])
+
+        for course in courses:
+            url = course_url.format({"subject":subject, "cid":course})
+            page = Scrape.get_page(url)
+            rooms_found += Scrape.course_to_rooms(page, subject, course)
+
+        return rooms_found
+
+    @staticmethod
+    def get_page(url):
+        """
+        Takes a url and returns a BeautifulSoup object of the page
+        :param url:
+        :return:
+        """
+        sleep(Scrape.delay) # prevent spamming the page
+        page = urlopen(url)  # download the page
+        soup = BeautifulSoup(page, "html5lib")  # convert it to a BeautifulSoup data structure
+        return soup
+
+    @staticmethod
+    def register_subject(subject, year, semester, campus):
+        """
+        For a given year, semester, campus, and subject, register all room bookings for that subject.
+        :param subject: The four-character subject code
+        :param year: The four-digit year
+        :param semester: The semester, in words: "Fall", "Winter", or "Spring"
+        :param campus: The campus: "Truro" or "Halifax"
+        :return: None
+        """
+        url = subject_url.format({"subject" : subject})
+        page = Scrape.get_page(url)
+        rooms_found = Scrape.subject_to_rooms(page)
+        print("{} rooms found".format(rooms_found))
+
+    @staticmethod
+    def register_all_subjects_in_semester_all_campuses(year, semester):
+        for campus in Scrape.campuses:
+            for subject in Scrape.subjects:
+                Scrape.register_subject(subject, year, semester, campus)
+                print("{} done for {} in {} {}".format(subject, campus, semester, year))
+
+    @staticmethod
+    def register_all_subjects_in_semester(year, semester, campus):
+        for subject in Scrape.subjects:
+            Scrape.register_subject(subject, year, semester, campus)
+            print("{} done for {} in {} {}".format(subject, campus, semester, year))
+
+
+class dal_Scrape:
     url = "https://dalonline.dal.ca/PROD/fysktime.P_DisplaySchedule?s_term={year}{semester}&s_crn=&s_subj={subject}&s_numb=&n={index}&s_district={campus}"
     subjects = ["ACSC", "ANAT", "ARTC", "ARBC", "ARCH", "ASSC", "BIOC", "BIOE", "BIOL", "BMNG", "BUSI", "CANA", "CNLT",
                 "CHEE", "CHEM", "CHIN", "CIVL", "CLAS", "COMM", "CH_E", "CPST", "CSCI", "CTMP", "CRWR", "DEHY", "DENT",
