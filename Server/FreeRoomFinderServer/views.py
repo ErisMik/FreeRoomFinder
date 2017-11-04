@@ -10,7 +10,7 @@ import json
 
 
 """def refresh(request):
-    Scrape.register_all_subjects_in_semester(year=2017, semester="Fall", campus="Halifax")
+    Scrape.register_all_subjects_in_semester(year=2017, semester=1, campus="Vancouver")
     return HttpResponse("Success")"""
 
 
@@ -32,6 +32,9 @@ def bookings(request):
 
 
 def api(request):
+    # Scrape.register_all_subjects_in_semester(year=2017, semester=1, campus="Vancouver")
+    # return HttpResponse("Success")
+
     search_term = request.GET.get("search", "")
     if not search_term:
         return HttpResponseBadRequest("Missing 'search' parameter")

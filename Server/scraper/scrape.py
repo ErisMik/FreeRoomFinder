@@ -6,6 +6,8 @@ import re
 import datetime
 from time import sleep
 
+import sys
+
 class Scrape:
     base_url = "https://courses.students.ubc.ca/cs/main?pname=subjarea&tname=subjareas&req=0"
     subject_url = "https://courses.students.ubc.ca/cs/main?pname=subjarea&tname=subjareas&req=1&dept={subject}"
@@ -13,7 +15,7 @@ class Scrape:
     section_url = "https://courses.students.ubc.ca/cs/main?pname=subjarea&tname=subjareas&req=5&dept={subject}&course={cid}&section={section}"
 
     subjects = ["AANB", "ACAM", "ADHE", "AFST", "AGEC", "ANAT", "ANSC", "ANTH", "APBI", "APPP", "APSC", "ARBC", "ARC", "ARCH", "ARCL",
-                "ARST", "ARTH", "ARTS", "ASIA", "ASIC", "ASLA", "ASTR", "ASTU", "ATSC", "AUDI", "BA", "BAAC", "BABS", "BAEN", "BAFI",
+               "ARST", "ARTH", "ARTS", "ASIA", "ASIC", "ASLA", "ASTR", "ASTU", "ATSC", "AUDI", "BA", "BAAC", "BABS", "BAEN", "BAFI",
                 "BAHC", "BAHR", "BAIM", "BAIT", "BALA", "BAMA", "BAMS", "BAPA", "BASC", "BASD", "BASM", "BATL", "BAUL", "BIOC", "BIOF",
                 "BIOL", "BIOT", "BMEG", "BOTA", "BRDG", "BUSI", "CAPS", "CCFI", "CCST", "CDST", "CEEN", "CELL", "CENS", "CHBE", "CHEM",
                 "CHIL", "CHIN", "CICS", "CIVL", "CLCH", "CLST", "CNPS", "CNRS", "CNTO", "COEC", "COGS", "COHR", "COMM", "COMR", "CONS",
@@ -33,30 +35,40 @@ class Scrape:
     campuses = ["Vancouver",]
 
     day_conversion = {
-        "Mon": "Monday",
-        "Tue": "Tuesday",
-        "Wed": "Wednesday",
-        "Thu": "Thursday",
-        "Fri": "Friday",
+        "Mo": "Monday",
+        "Tu": "Tuesday",
+        "We": "Wednesday",
+        "Th": "Thursday",
+        "Fr": "Friday",
+        "Sa": "Saturday",
+        "Su": "Sunday",
     }
     delay = 0.1
 
     @staticmethod
-    def section_to_rooms(page):
+    def section_to_rooms(page, subject, course, section):
         """
         """
+        print("~"+subject+" "+course+" "+section, file=sys.stderr)
         room_found = False
-        table = body.find("table", class_="table", recursive=True)
-        table = table.find("tbody", recursive=True)
-        rows = table.find_all("tr", recursive=True)
+        body = page.body
+        table = body.find("table", class_="table-striped", recursive=True)
+        tbody = table.find("tbody", recursive=True)
+        rows = tbody.find_all("tr", recursive=True)
+        print(rows, file=sys.stderr)
 
         for row in rows:
-            row = row.split("<td>")
+            row = str(row).split("<td>")
             for x in range(len(row)):
-                row[x].strip("</td>")
+                row[x] = row[x].strip().strip("</td>").strip()
 
-            days = row[1]
-            days = [day_conversion[day] for day in days]
+            row.pop(0)
+            if len(row) < 2 or not row[4] or "No Scheduled Meeting" in row[4] or "To Be" in row[4]:
+                continue
+
+            days = row[1].split()
+            print(row, file=sys.stderr)
+            days = [Scrape.day_conversion[day[:2]] for day in days]
 
             start_time = {
                 "h": int(row[2].split(":")[0]),
@@ -67,14 +79,15 @@ class Scrape:
                 "m": int(row[3].split(":")[1])
             }
 
+            roomnum = row[5].split(">")[1].split("<")[0]
 
             # register a room
             room_obj, created = Room.objects.update_or_create(
                 campus="Vancouver",
                 building=row[4],
-                number=row[5].text
+                number=roomnum
             )
-            rooms_found = True
+            room_found = True
 
             # register a room booking for each weekday
             for day in days:
@@ -84,12 +97,12 @@ class Scrape:
                     occasion=course,
                     room=room_obj,
                     semester=row[0],
-                    year=year,
+                    year=2017,
                     weekday=day
                 )
                 slot.save()        
 
-        if rooms_found:
+        if room_found:
             return 1
         else:
             return 0
@@ -99,19 +112,24 @@ class Scrape:
         """
         """
         sections = []
+        rooms_found = 0
         body = page.body
-        table = body.find("table", class_="section_summary", recursive=True)
-        table = table.find("tbody", recursive=True)
-        rows = table.find_all("tr", recursive=True)
+        table = body.find("table", class_="table table-striped section-summary", recursive=True)
+        tbody = table.find("tbody", recursive=True)
+        rows = tbody.find_all("tr", recursive=True)
 
+        # This is not going to capture all room usage, see url for example exception
+        # https://courses.students.ubc.ca/cs/main?pname=subjarea&tname=subjareas&req=3&dept=ANAT&course=392
         for row in rows:
             data = row.find("a", recursive=True)
-            sections.append(data.text.split()[-1])
+            if not data is None:
+                sections.append(data.text.split()[-1])
+                break  ##
 
         for section in sections:
-            url = section_url.format({"subject":subject, "cid":course, "section":section})
+            url = Scrape.section_url.format(subject=subject, cid=course, section=section)
             page = Scrape.get_page(url)
-            rooms_found += Scrape.section_to_rooms(page)
+            rooms_found += Scrape.section_to_rooms(page, subject, course, section)
 
         return rooms_found
 
@@ -120,17 +138,18 @@ class Scrape:
         """
         """
         courses = []
+        rooms_found = 0
         body = page.body
-        table = body.find("table", id_="mainTable", recursive=True)
-        table = table.find("tbody", recursive=True)
-        rows = table.find_all("tr", recursive=True)
+        table = body.find("table", class_="table", recursive=True)
+        tbody = table.find("tbody", recursive=True)
+        rows = tbody.find_all("tr", recursive=True)
 
         for row in rows:
             data = row.find("a", recursive=True)
             courses.append(data.text.split()[-1])
 
         for course in courses:
-            url = course_url.format({"subject":subject, "cid":course})
+            url = Scrape.course_url.format(subject=subject, cid=course)
             page = Scrape.get_page(url)
             rooms_found += Scrape.course_to_rooms(page, subject, course)
 
@@ -158,9 +177,9 @@ class Scrape:
         :param campus: The campus: "Truro" or "Halifax"
         :return: None
         """
-        url = subject_url.format({"subject" : subject})
+        url = Scrape.subject_url.format(subject=subject)
         page = Scrape.get_page(url)
-        rooms_found = Scrape.subject_to_rooms(page)
+        rooms_found = Scrape.subject_to_rooms(page, subject)
         print("{} rooms found".format(rooms_found))
 
     @staticmethod
