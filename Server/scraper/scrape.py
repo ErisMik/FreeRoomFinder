@@ -27,11 +27,12 @@ class Scrape:
                 "ITAL", "ITST", "IWME", "JAPN", "JRNL", "KIN", "KORN", "LAIS", "LARC", "LASO", "LAST", "LATN", "LAW", "LFS", "LIBE", "LIBR",
                 "LING", "LLED", "LWS", "MATH", "MDVL", "MECH", "MEDD", "MEDG", "MEDI", "MGMT", "MICB", "MIDW", "MINE", "MRNE", "MTRL",
                 "MUSC", "NAME", "NEST", "NEUR", "NRSC", "NURS", "OBMS", "OBST", "OHS", "ONCO", "OPTH", "ORNT", "ORPA", "OSOT", "PAED",
-                "PATH", "PCTH", "PERS", "PHAR", "PHIL", "PHRM", "PHTH", "PHYL", "PHYS", "PLAN", "PLAS", "PLNT", "POLI", "POLS", "PORT",
+                "PATH", "PCTH", "PERS", "PHAR", "PHIL", "PHRM", "PHTH", "PHYL", "PHYS", "PLAN", "PLNT", "POLI", "POLS", "PORT",
                 "PSYC", "PSYT", "PUNJ", "RADI", "RELG", "RES", "RGLA", "RHSC", "RMST", "RSOT", "RUSS", "SANS", "SCAN", "SCIE", "SEAL",
                 "SGES", "SLAV", "SOAL", "SOCI", "SOIL", "SOWK", "SPAN", "SPHA", "SPPH", "STAT", "STS", "SURG", "SWED", "TEST", "THTR",
-                "TIBT", "TRSC", "UDES", "UFOR", "UKRN", "URO", "UROL", "URST", "URSY", "VANT", "VGRD", "VISA", "VRHC", "VURS", "WOOD",
+                "TIBT", "TRSC", "UDES", "UFOR", "UKRN", "URO", "URST", "URSY", "VANT", "VGRD", "VISA", "VRHC", "VURS", "WOOD",
                 "WRDS", "WRIT", "ZOOL"]
+
     campuses = ["Vancouver",]
 
     day_conversion = {
@@ -89,6 +90,7 @@ class Scrape:
             )
             room_found = True
 
+            # TODO: Fix semester stuff
             # register a room booking for each weekday
             for day in days:
                 slot = RoomBookedSlot(
@@ -194,6 +196,8 @@ class Scrape:
         for subject in Scrape.subjects:
             Scrape.register_subject(subject, year, semester, campus)
             print("{} done for {} in {} {}".format(subject, campus, semester, year))
+
+
 
 
 class dal_Scrape:
