@@ -124,13 +124,11 @@ class Scrape:
         tbody = table.find("tbody", recursive=True)
         rows = tbody.find_all("tr", recursive=True)
 
-        # This is not going to capture all room usage, see url for example exception
-        # https://courses.students.ubc.ca/cs/main?pname=subjarea&tname=subjareas&req=3&dept=ANAT&course=392
         for row in rows:
             data = row.find("a", recursive=True)
-            if not data is None:
+            if not data is None and not "Comments" in str(data):
                 sections.append(data.text.split()[-1])
-                break  ##
+                # break  ##
 
         for section in sections:
             url = Scrape.section_url.format(subject=subject, cid=course, section=section)
