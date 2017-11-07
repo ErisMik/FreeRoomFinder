@@ -10,7 +10,7 @@ import json
 
 
 """def refresh(request):
-    Scrape.register_all_subjects_in_semester(year=2017, semester="Fall", campus="Halifax")
+    Scrape.register_all_subjects_in_semester(year=2017, semester=1, campus="Vancouver")
     return HttpResponse("Success")"""
 
 
@@ -63,12 +63,10 @@ def api(request):
 
         # semester
         month = datetime.datetime.now().month
-        if month <= 4:
-            semester = "Winter"
-        elif month <= 8:
-            semester = "Summer"
+        if month <= 5:
+            semester = 2
         else:
-            semester = "Fall"
+            semester = 1
 
         empty_rooms: EmptyRooms = Empty.find_empty(time=time, weekday=weekday, semester=semester, year=year)
         empty_rooms_json: str = json.dumps(empty_rooms, sort_keys=True, indent=4)
