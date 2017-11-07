@@ -10,7 +10,8 @@ import json
 
 
 def refresh(request):
-    Scrape.register_all_subjects_in_semester(year=2017, semester=1, campus="Vancouver")
+    Scrape.register_all_subjects_in_semester(university="ubc", year=2017, semester="Fall", campus="Vancouver")
+    Scrape.register_all_subjects_in_semester(university="dal", year=2017, semester="Fall", campus="Halifax")
     return HttpResponse("Success")
 
 
@@ -63,10 +64,12 @@ def api(request):
 
         # semester
         month = datetime.datetime.now().month
-        if month <= 5:
-            semester = 2
-        else:
-            semester = 1
+        if month <= 4: 
+            semester = "Winter" 
+        elif month <= 8: 
+            semester = "Summer" 
+        else: 
+            semester = "Fall" 
 
         # University
         university = request.GET.get("university", "")
