@@ -48,6 +48,7 @@ xhr.onload = function () {
             endtime: HH_MM_SS_to_HH_MM(b[5]),
             subject: b[6],
             room: room,
+            university: b[8],
         })
     }
 
@@ -65,18 +66,21 @@ xhr.onload = function () {
 xhr.send();
 
 $("#day").change(refreshList);
+$("#university").change(refreshList);
 /*$("#time").change(refreshList);*/
 
 
 function refreshList(): void {
-    // only show bookings for the current weekday
+    // only show bookings for the current weekday and university
     let values = [];
     let weekday = $("#day").val();  // TODO: set weekday automatically
+    let university = $("#university").val();
     bookingsList.clear();
     let valuesToAdd = [];
     for (let i = 0; i < allBookingValues.length; i++) {
         let booking = allBookingValues[i];
-        if (allBookingValues[i].weekday == weekday){
+        if (allBookingValues[i].weekday == weekday && 
+            allBookingValues[i].university == university){
             valuesToAdd.push(allBookingValues[i]);
         }
     }

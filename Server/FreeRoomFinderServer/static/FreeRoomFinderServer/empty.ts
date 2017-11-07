@@ -63,7 +63,7 @@ function init() {
 function refreshList() {
     time = timeElement.val();
     weekday = weekdayElement.val();
-    university = universityElement.val() 
+    university = universityElement.val();
 
     let xhr = new XMLHttpRequest();
     xhr.open('GET', `/api?search=empty&university=${university}&time=${time}&weekday=${weekday}`, true);

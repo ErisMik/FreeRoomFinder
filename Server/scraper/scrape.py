@@ -32,9 +32,6 @@ class ubc_Scrape:
                 "SGES", "SLAV", "SOAL", "SOCI", "SOIL", "SOWK", "SPAN", "SPHA", "SPPH", "STAT", "STS", "SURG", "SWED", "TEST", "THTR",
                 "TIBT", "TRSC", "UDES", "UFOR", "UKRN", "URO", "URST", "URSY", "VANT", "VGRD", "VISA", "VRHC", "VURS", "WOOD",
                 "WRDS", "WRIT", "ZOOL"]
-
-    subjects = ["MATH"]
-
     day_conversion = {
         "Mo": "Monday",
         "Tu": "Tuesday",
@@ -99,7 +96,7 @@ class ubc_Scrape:
                         university="ubc",
                         start_time=datetime.time(start_time["h"], start_time["m"]),
                         end_time=datetime.time(end_time["h"], end_time["m"]),
-                        occasion=course,
+                        occasion=subject+" "+course+" "+section,
                         room=room_obj,
                         semester="Fall",
                         year=2017,
@@ -111,7 +108,7 @@ class ubc_Scrape:
                         university="ubc",
                         start_time=datetime.time(start_time["h"], start_time["m"]),
                         end_time=datetime.time(end_time["h"], end_time["m"]),
-                        occasion=course,
+                        occasion=subject+" "+course+" "+section,
                         room=room_obj,
                         semester="Winter",
                         year=2017,
@@ -222,9 +219,6 @@ class dal_Scrape:
                 "PATH", "PERF", "PERI", "PHAC", "PHAR", "PHIL", "PHYC", "PHYL", "PHYT", "PLAN", "POLI", "PGPH", "PEAS",
                 "PROS", "PSYR", "PSYO", "PUAD", "RADT", "REGN", "RELS", "RSPT", "RUSN", "SCIE", "SLWK", "SOSA", "SPAN",
                 "STAT", "SUST", "THEA", "TYPR", "VISC"]
-
-    subjects = ["MATH"]
-
     campuses = ["Truro", "Halifax"]
     day_conversion = {
         "M": "Monday",

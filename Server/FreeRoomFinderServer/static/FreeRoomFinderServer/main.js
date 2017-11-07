@@ -45,7 +45,8 @@ xhr.onload = function () {
             starttime: HH_MM_SS_to_HH_MM(b[4]),
             endtime: HH_MM_SS_to_HH_MM(b[5]),
             subject: b[6],
-            room: room
+            room: room,
+            university: b[8]
         });
     }
     // set up sorting
@@ -58,16 +59,19 @@ xhr.onload = function () {
 };
 xhr.send();
 $("#day").change(refreshList);
+$("#university").change(refreshList);
 /*$("#time").change(refreshList);*/
 function refreshList() {
-    // only show bookings for the current weekday
+    // only show bookings for the current weekday and university
     var values = [];
     var weekday = $("#day").val(); // TODO: set weekday automatically
+    var university = $("#university").val();
     bookingsList.clear();
     var valuesToAdd = [];
     for (var i = 0; i < allBookingValues.length; i++) {
         var booking = allBookingValues[i];
-        if (allBookingValues[i].weekday == weekday) {
+        if (allBookingValues[i].weekday == weekday &&
+            allBookingValues[i].university == university) {
             valuesToAdd.push(allBookingValues[i]);
         }
     }
