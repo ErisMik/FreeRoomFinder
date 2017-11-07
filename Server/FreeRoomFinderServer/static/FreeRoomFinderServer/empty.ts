@@ -7,6 +7,7 @@ function HH_MM_SS_to_HH_MM(time: string): string {
     return split[0] + ":" + split[1];
 }
 
+let universityElement = $("#university");
 let weekdayElement = $("#day");
 let timeElement = $("#time");
 let timeNowButton = $("#timenow");
@@ -20,6 +21,7 @@ let emptyRooms: Array<Object>;
 function init() {
 
     // set up event handlers
+    universityElement.change(refreshList);
     weekdayElement.change(refreshList);
     timeElement.change(refreshList);
 
@@ -61,9 +63,10 @@ function init() {
 function refreshList() {
     time = timeElement.val();
     weekday = weekdayElement.val();
+    university = universityElement.val() 
 
     let xhr = new XMLHttpRequest();
-    xhr.open('GET', `/api?search=empty&time=${time}&weekday=${weekday}`, true);
+    xhr.open('GET', `/api?search=empty&university=${university}&time=${time}&weekday=${weekday}`, true);
     xhr.responseType = 'arraybuffer';
     xhr.onload = function () {
         let decoded = String.fromCharCode.apply(null, new Uint8Array(this.response));

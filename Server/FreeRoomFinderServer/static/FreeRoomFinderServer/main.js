@@ -45,7 +45,7 @@ xhr.onload = function () {
             starttime: HH_MM_SS_to_HH_MM(b[4]),
             endtime: HH_MM_SS_to_HH_MM(b[5]),
             subject: b[6],
-            room: room,
+            room: room
         });
     }
     // set up sorting

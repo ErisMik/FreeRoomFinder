@@ -33,7 +33,7 @@ class Empty:
 
 
     @staticmethod
-    def find_empty(time: datetime.time, weekday: str, year: int, semester: str) -> EmptyRooms:
+    def find_empty(university: str, time: datetime.time, weekday: str, year: int, semester: str) -> EmptyRooms:
         """
         Find empty rooms at a given time on a given day in a given semester of a given year
         :param time: The current time
@@ -43,11 +43,11 @@ class Empty:
         :return: A list of dicts, each containing an empty room, the end time of the previous class, and the start time of the next class.
         """
         empty_rooms: EmptyRooms = []
-        for room in Room.objects.all():
+        for room in Room.objects.filter(university=university):
             is_empty = True
             last_end_time: datetime.time = None  # end of the most recent class
             next_start_time: datetime.time = None  # beginning of the next class
-            for booking in RoomBookedSlot.objects.filter(room=room, weekday=weekday, year=year, semester=semester):
+            for booking in RoomBookedSlot.objects.filter(university=university, room=room, weekday=weekday, year=year, semester=semester):
                 if booking.end_time < time:  # the booking is over
                     if not last_end_time or booking.end_time > last_end_time:
                         last_end_time = booking.end_time

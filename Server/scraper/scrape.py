@@ -33,6 +33,8 @@ class Scrape:
                 "TIBT", "TRSC", "UDES", "UFOR", "UKRN", "URO", "URST", "URSY", "VANT", "VGRD", "VISA", "VRHC", "VURS", "WOOD",
                 "WRDS", "WRIT", "ZOOL"]
 
+    subjects = ["MATH"]
+
     campuses = ["Vancouver",]
 
     day_conversion = {
@@ -84,6 +86,7 @@ class Scrape:
 
             # register a room
             room_obj, created = Room.objects.update_or_create(
+                university="ubc",
                 campus="Vancouver",
                 building=row[4],
                 number=roomnum
@@ -94,6 +97,7 @@ class Scrape:
             # register a room booking for each weekday
             for day in days:
                 slot = RoomBookedSlot(
+                    university="ubc",
                     start_time=datetime.time(start_time["h"], start_time["m"]),
                     end_time=datetime.time(end_time["h"], end_time["m"]),
                     occasion=course,

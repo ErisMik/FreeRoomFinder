@@ -5,19 +5,21 @@ class Room(models.Model):
     """
     A single room on a campus
     """
+    university = models.CharField(max_length=100)
     campus = models.CharField(max_length=100)
     building = models.CharField(max_length=100)
     number = models.CharField(max_length=100)  # some room numbers have letters in them
     capacity = models.IntegerField(default=0)  # can guess this from max class sizes
 
     class Meta:
-        unique_together = ("campus", "building", "number")
+        unique_together = ("university", "campus", "building", "number")
 
 
 class RoomBookedSlot(models.Model):
     """
     A single booking for a room
     """
+    university = models.CharField(max_length=100)
     year = models.IntegerField(default=0)  # no sense using a date here
     semester = models.CharField(max_length=10)  # "Fall", "Winter", or "Summer"
     weekday = models.CharField(max_length=10)  # "Monday", "Tuesday", etc
@@ -31,6 +33,7 @@ class BookingCache(models.Model):
     """
     A text cache of bookings. Rooms are text, and bookings for the same room and timeslot are combined into one.
     """
+    university = models.CharField(max_length=100)
     year = models.IntegerField(default=0)  # no sense using a date here
     semester = models.CharField(max_length=10)  # "Fall", "Winter", or "Summer"
     weekday = models.CharField(max_length=10)  # "Monday", "Tuesday", etc

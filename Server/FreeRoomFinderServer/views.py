@@ -9,9 +9,9 @@ from scraper.empty import Empty, EmptyRooms
 import json
 
 
-"""def refresh(request):
+def refresh(request):
     Scrape.register_all_subjects_in_semester(year=2017, semester=1, campus="Vancouver")
-    return HttpResponse("Success")"""
+    return HttpResponse("Success")
 
 
 """def partial_refresh(request):
@@ -31,9 +31,7 @@ def bookings(request):
     return render(request, "FreeRoomFinderServer/main.html", context=None)
 
 
-def api(request):
-    Scrape.register_all_subjects_in_semester(year=2017, semester=1, campus="Vancouver")
-    
+def api(request):    
     search_term = request.GET.get("search", "")
     if not search_term:
         return HttpResponseBadRequest("Missing 'search' parameter")
@@ -70,7 +68,10 @@ def api(request):
         else:
             semester = 1
 
-        empty_rooms: EmptyRooms = Empty.find_empty(time=time, weekday=weekday, semester=semester, year=year)
+        # University
+        university = request.GET.get("university", "")
+
+        empty_rooms: EmptyRooms = Empty.find_empty(university=university,time=time, weekday=weekday, semester=semester, year=year)
         empty_rooms_json: str = json.dumps(empty_rooms, sort_keys=True, indent=4)
         return HttpResponse(empty_rooms_json)
 
