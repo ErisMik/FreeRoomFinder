@@ -8,7 +8,7 @@ from time import sleep
 
 import sys
 
-class Scrape:
+class ubc_Scrape:
     base_url = "https://courses.students.ubc.ca/cs/main?pname=subjarea&tname=subjareas&req=0"
     subject_url = "https://courses.students.ubc.ca/cs/main?pname=subjarea&tname=subjareas&req=1&dept={subject}"
     course_url = "https://courses.students.ubc.ca/cs/main?pname=subjarea&tname=subjareas&req=3&dept={subject}&course={cid}"
@@ -32,9 +32,6 @@ class Scrape:
                 "SGES", "SLAV", "SOAL", "SOCI", "SOIL", "SOWK", "SPAN", "SPHA", "SPPH", "STAT", "STS", "SURG", "SWED", "TEST", "THTR",
                 "TIBT", "TRSC", "UDES", "UFOR", "UKRN", "URO", "URST", "URSY", "VANT", "VGRD", "VISA", "VRHC", "VURS", "WOOD",
                 "WRDS", "WRIT", "ZOOL"]
-
-    campuses = ["Vancouver",]
-
     day_conversion = {
         "Mo": "Monday",
         "Tu": "Tuesday",
@@ -56,7 +53,7 @@ class Scrape:
         table = body.find("table", class_="table-striped", recursive=True)
         tbody = table.find("tbody", recursive=True)
         rows = tbody.find_all("tr", recursive=True)
-        print(rows, file=sys.stderr)
+        # print(rows, file=sys.stderr)
 
         for row in rows:
             row = str(row).split("<td>")
@@ -68,8 +65,8 @@ class Scrape:
                 continue
 
             days = row[1].split()
-            print(row, file=sys.stderr)
-            days = [Scrape.day_conversion[day[:2]] for day in days]
+            # print(row, file=sys.stderr)
+            days = [ubc_Scrape.day_conversion[day[:2]] for day in days]
 
             start_time = {
                 "h": int(row[2].split(":")[0]),
@@ -84,6 +81,7 @@ class Scrape:
 
             # register a room
             room_obj, created = Room.objects.update_or_create(
+                university="ubc",
                 campus="Vancouver",
                 building=row[4],
                 number=roomnum
@@ -93,16 +91,30 @@ class Scrape:
             # TODO: Fix semester stuff
             # register a room booking for each weekday
             for day in days:
-                slot = RoomBookedSlot(
-                    start_time=datetime.time(start_time["h"], start_time["m"]),
-                    end_time=datetime.time(end_time["h"], end_time["m"]),
-                    occasion=course,
-                    room=room_obj,
-                    semester=row[0],
-                    year=2017,
-                    weekday=day
-                )
-                slot.save()        
+                if "1" in row[0]:
+                    slot = RoomBookedSlot(
+                        university="ubc",
+                        start_time=datetime.time(start_time["h"], start_time["m"]),
+                        end_time=datetime.time(end_time["h"], end_time["m"]),
+                        occasion=subject+" "+course+" "+section,
+                        room=room_obj,
+                        semester="Fall",
+                        year=2017,
+                        weekday=day
+                    )
+                    slot.save()
+                if "2" in row[0]:
+                    slot = RoomBookedSlot(
+                        university="ubc",
+                        start_time=datetime.time(start_time["h"], start_time["m"]),
+                        end_time=datetime.time(end_time["h"], end_time["m"]),
+                        occasion=subject+" "+course+" "+section,
+                        room=room_obj,
+                        semester="Winter",
+                        year=2017,
+                        weekday=day
+                    )
+                    slot.save()
 
         if room_found:
             return 1
@@ -120,18 +132,16 @@ class Scrape:
         tbody = table.find("tbody", recursive=True)
         rows = tbody.find_all("tr", recursive=True)
 
-        # This is not going to capture all room usage, see url for example exception
-        # https://courses.students.ubc.ca/cs/main?pname=subjarea&tname=subjareas&req=3&dept=ANAT&course=392
         for row in rows:
             data = row.find("a", recursive=True)
-            if not data is None:
+            if not data is None and not "Comments" in str(data):
                 sections.append(data.text.split()[-1])
-                break  ##
+                # break  ##
 
         for section in sections:
-            url = Scrape.section_url.format(subject=subject, cid=course, section=section)
-            page = Scrape.get_page(url)
-            rooms_found += Scrape.section_to_rooms(page, subject, course, section)
+            url = ubc_Scrape.section_url.format(subject=subject, cid=course, section=section)
+            page = ubc_Scrape.get_page(url)
+            rooms_found += ubc_Scrape.section_to_rooms(page, subject, course, section)
 
         return rooms_found
 
@@ -151,9 +161,9 @@ class Scrape:
             courses.append(data.text.split()[-1])
 
         for course in courses:
-            url = Scrape.course_url.format(subject=subject, cid=course)
-            page = Scrape.get_page(url)
-            rooms_found += Scrape.course_to_rooms(page, subject, course)
+            url = ubc_Scrape.course_url.format(subject=subject, cid=course)
+            page = ubc_Scrape.get_page(url)
+            rooms_found += ubc_Scrape.course_to_rooms(page, subject, course)
 
         return rooms_found
 
@@ -164,7 +174,7 @@ class Scrape:
         :param url:
         :return:
         """
-        sleep(Scrape.delay) # prevent spamming the page
+        sleep(ubc_Scrape.delay) # prevent spamming the page
         page = urlopen(url)  # download the page
         soup = BeautifulSoup(page, "html5lib")  # convert it to a BeautifulSoup data structure
         return soup
@@ -179,26 +189,23 @@ class Scrape:
         :param campus: The campus: "Truro" or "Halifax"
         :return: None
         """
-        url = Scrape.subject_url.format(subject=subject)
-        page = Scrape.get_page(url)
-        rooms_found = Scrape.subject_to_rooms(page, subject)
+        url = ubc_Scrape.subject_url.format(subject=subject)
+        page = ubc_Scrape.get_page(url)
+        rooms_found = ubc_Scrape.subject_to_rooms(page, subject)
         print("{} rooms found".format(rooms_found))
 
     @staticmethod
     def register_all_subjects_in_semester_all_campuses(year, semester):
-        for campus in Scrape.campuses:
-            for subject in Scrape.subjects:
-                Scrape.register_subject(subject, year, semester, campus)
+        for campus in ubc_Scrape.campuses:
+            for subject in ubc_Scrape.subjects:
+                ubc_Scrape.register_subject(subject, year, semester, campus)
                 print("{} done for {} in {} {}".format(subject, campus, semester, year))
 
     @staticmethod
     def register_all_subjects_in_semester(year, semester, campus):
-        for subject in Scrape.subjects:
-            Scrape.register_subject(subject, year, semester, campus)
+        for subject in ubc_Scrape.subjects:
+            ubc_Scrape.register_subject(subject, year, semester, campus)
             print("{} done for {} in {} {}".format(subject, campus, semester, year))
-
-
-
 
 class dal_Scrape:
     url = "https://dalonline.dal.ca/PROD/fysktime.P_DisplaySchedule?s_term={year}{semester}&s_crn=&s_subj={subject}&s_numb=&n={index}&s_district={campus}"
@@ -253,7 +260,7 @@ class dal_Scrape:
         else:
             raise KeyError("Invalid campus")
 
-        url = Scrape.url.format(year=year, semester=semester, subject=subject, index=index, campus=campus)
+        url = dal_Scrape.url.format(year=year, semester=semester, subject=subject, index=index, campus=campus)
         print(url)
         return url
 
@@ -264,7 +271,7 @@ class dal_Scrape:
         :param url:
         :return:
         """
-        sleep(Scrape.delay) # prevent spamming the page
+        sleep(dal_Scrape.delay) # prevent spamming the page
         page = urlopen(url)  # download the page
         soup = BeautifulSoup(page, "html5lib")  # convert it to a BeautifulSoup data structure
         return soup
@@ -374,7 +381,7 @@ class dal_Scrape:
                     if not days or not time or not room:  # probably a header, not a room
                         continue
 
-                    days = [day_conversion[day] for day in days]
+                    days = [dal_Scrape.day_conversion[day] for day in days]
 
                     start_time = {
                         "h": int(time[:2]),
@@ -394,6 +401,7 @@ class dal_Scrape:
                     campus = split.pop(0)  # campus is the first word
                     number = split.pop()  # room number is usually the last word
                     room_obj, created = Room.objects.update_or_create(
+                        university="dal",
                         campus=campus,
                         building=" ".join(split),
                         number=number
@@ -403,6 +411,7 @@ class dal_Scrape:
                     # register a room booking for each weekday
                     for day in days:
                         slot = RoomBookedSlot(
+                            university="dal",
                             start_time=datetime.time(start_time["h"], start_time["m"]),
                             end_time=datetime.time(end_time["h"], end_time["m"]),
                             occasion=course,
@@ -427,8 +436,8 @@ class dal_Scrape:
         """
         page_num = 0
         while True:
-            page = Scrape.get_page(Scrape.create_url(year, semester, subject, page_num, campus))
-            rooms_found = Scrape.page_to_rooms(page, year, semester)
+            page = dal_Scrape.get_page(dal_Scrape.create_url(year, semester, subject, page_num, campus))
+            rooms_found = dal_Scrape.page_to_rooms(page, year, semester)
             print("{} rooms found".format(rooms_found))
             if rooms_found == 0:
                 break
@@ -436,13 +445,39 @@ class dal_Scrape:
 
     @staticmethod
     def register_all_subjects_in_semester_all_campuses(year, semester):
-        for campus in Scrape.campuses:
-            for subject in Scrape.subjects:
-                Scrape.register_all_pages_in_subject(subject, year, semester, campus)
+        for campus in dal_Scrape.campuses:
+            for subject in dal_Scrape.subjects:
+                dal_Scrape.register_all_pages_in_subject(subject, year, semester, campus)
                 print("{} done for {} in {} {}".format(subject, campus, semester, year))
 
     @staticmethod
     def register_all_subjects_in_semester(year, semester, campus):
-        for subject in Scrape.subjects:
-            Scrape.register_all_pages_in_subject(subject, year, semester, campus)
+        for subject in dal_Scrape.subjects:
+            dal_Scrape.register_all_pages_in_subject(subject, year, semester, campus)
             print("{} done for {} in {} {}".format(subject, campus, semester, year))
+
+###############################################################################################################################
+
+class Scrape:
+    day_conversion = {**ubc_Scrape.day_conversion, **dal_Scrape.day_conversion}
+
+    @staticmethod
+    def register_all_pages_in_subject(university, subject, year, semester, campus):
+        if "ubc" in university:
+            ubc_Scrape.register_all_pages_in_subject(subject, year, semester, campus)
+        elif "dal" in university:
+            dal_Scrape.register_all_pages_in_subject(subject, year, semester, campus)
+
+    @staticmethod
+    def register_all_subjects_in_semester_all_campuses(university, year, semester):
+        if "ubc" in university:
+            ubc_Scrape.register_all_subjects_in_semester_all_campuses(subject, year, semester)
+        elif "dal" in university:
+            dal_Scrape.register_all_subjects_in_semester_all_campuses(subject, year, semester)
+
+    @staticmethod
+    def register_all_subjects_in_semester(university, year, semester, campus):
+        if "ubc" in university:
+            ubc_Scrape.register_all_subjects_in_semester(year, semester, campus)
+        elif "dal" in university:
+            dal_Scrape.register_all_subjects_in_semester(year, semester, campus)

@@ -9,9 +9,10 @@ from scraper.empty import Empty, EmptyRooms
 import json
 
 
-"""def refresh(request):
-    Scrape.register_all_subjects_in_semester(year=2017, semester=1, campus="Vancouver")
-    return HttpResponse("Success")"""
+def refresh(request):
+    Scrape.register_all_subjects_in_semester(university="ubc", year=2017, semester="Fall", campus="Vancouver")
+    Scrape.register_all_subjects_in_semester(university="dal", year=2017, semester="Fall", campus="Halifax")
+    return HttpResponse("Success")
 
 
 """def partial_refresh(request):
@@ -63,12 +64,17 @@ def api(request):
 
         # semester
         month = datetime.datetime.now().month
-        if month <= 5:
-            semester = 2
-        else:
-            semester = 1
+        if month <= 4: 
+            semester = "Winter" 
+        elif month <= 8: 
+            semester = "Summer" 
+        else: 
+            semester = "Fall" 
 
-        empty_rooms: EmptyRooms = Empty.find_empty(time=time, weekday=weekday, semester=semester, year=year)
+        # University
+        university = request.GET.get("university", "")
+
+        empty_rooms: EmptyRooms = Empty.find_empty(university=university,time=time, weekday=weekday, semester=semester, year=year)
         empty_rooms_json: str = json.dumps(empty_rooms, sort_keys=True, indent=4)
         return HttpResponse(empty_rooms_json)
 

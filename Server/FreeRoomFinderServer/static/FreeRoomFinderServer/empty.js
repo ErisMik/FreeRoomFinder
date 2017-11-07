@@ -6,6 +6,7 @@ function HH_MM_SS_to_HH_MM(time) {
     var split = time.split(":");
     return split[0] + ":" + split[1];
 }
+var universityElement = $("#university");
 var weekdayElement = $("#day");
 var timeElement = $("#time");
 var timeNowButton = $("#timenow");
@@ -15,6 +16,7 @@ var emptyList;
 var emptyRooms;
 function init() {
     // set up event handlers
+    universityElement.change(refreshList);
     weekdayElement.change(refreshList);
     timeElement.change(refreshList);
     // set up time picker
@@ -32,7 +34,7 @@ function init() {
         3: "Wednesday",
         4: "Thursday",
         5: "Friday",
-        6: "Saturday",
+        6: "Saturday"
     };
     var d = new Date().getDay();
     weekdayElement.val(weekdayTable[d]);
@@ -49,8 +51,9 @@ function init() {
 function refreshList() {
     time = timeElement.val();
     weekday = weekdayElement.val();
+    university = universityElement.val();
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', "/api?search=empty&time=" + time + "&weekday=" + weekday, true);
+    xhr.open('GET', "/api?search=empty&university=" + university + "&time=" + time + "&weekday=" + weekday, true);
     xhr.responseType = 'arraybuffer';
     xhr.onload = function () {
         var decoded = String.fromCharCode.apply(null, new Uint8Array(this.response));
