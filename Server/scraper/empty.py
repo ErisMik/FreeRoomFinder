@@ -20,7 +20,7 @@ class Empty:
         :return: The time as a string, HH:MM or HH:MM:SS
         """
         if not time:
-            return "Never"
+            return "---"
         if seconds:
             return "{:02d}:{:02d}:{:02d}".format(time.hour, time.minute, time.second)
         else:
