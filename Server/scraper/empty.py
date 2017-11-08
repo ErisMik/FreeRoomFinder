@@ -20,7 +20,7 @@ class Empty:
         :return: The time as a string, HH:MM or HH:MM:SS
         """
         if not time:
-            return "Never"
+            return "---"
         if seconds:
             return "{:02d}:{:02d}:{:02d}".format(time.hour, time.minute, time.second)
         else:
@@ -33,7 +33,7 @@ class Empty:
 
 
     @staticmethod
-    def find_empty(university: str, time: datetime.time, weekday: str, year: int, semester: str) -> EmptyRooms:
+    def find_empty(university: str, time: datetime.time, weekday: str, year: int, semester: str, tdelta=datetime.timedelta(minutes=10)) -> EmptyRooms:
         """
         Find empty rooms at a given time on a given day in a given semester of a given year
         :param time: The current time
@@ -48,7 +48,7 @@ class Empty:
             last_end_time: datetime.time = None  # end of the most recent class
             next_start_time: datetime.time = None  # beginning of the next class
             for booking in RoomBookedSlot.objects.filter(university=university, room=room, weekday=weekday, year=year, semester=semester):
-                if booking.end_time < time:  # the booking is over
+                if booking.end_time < (datetime.datetime.combine(datetime.datetime.now(),time) + tdelta).time():  # the booking is over
                     if not last_end_time or booking.end_time > last_end_time:
                         last_end_time = booking.end_time
                 elif booking.start_time > time:  # the booking has yet to start
