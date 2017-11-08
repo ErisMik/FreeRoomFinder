@@ -1,20 +1,14 @@
-/*@media screen and (max-width: 480px) {
-    .nav {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-    }
+.nav {
+    padding: 5px;
 }
-@media screen and (min-width: 480px) {
-    .nav {
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-    }
-}*/
+
+.nav div {
+    padding-right: 5px;
+    padding-bottom: 5px;
+}
 
 .nav * {
-    height: 50px;
+    min-height: 50px;
 }
 
 body * {
@@ -32,9 +26,16 @@ body * {
 
 button {
     font-size: 20px;
-    height: 55px;
+    min-height: 55px;
 }
 
 table tbody tr:nth-child(even) {
     background-color: #DDD;
+}
+
+
+@media screen and (min-width: 480px) {
+    .nav div{
+        display: inline-block;
+    }
 }
