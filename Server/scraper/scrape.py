@@ -41,7 +41,7 @@ class ubc_Scrape:
         "Sa": "Saturday",
         "Su": "Sunday",
     }
-    delay = 0.1
+    delay = 0.00
 
     @staticmethod
     def section_to_rooms(page, subject, course, section):
