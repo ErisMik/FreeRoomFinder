@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Room Bookings</title>
+</head>
+<body>
+{% load static %}
+
+<h1>Room Bookings at
+<td>
+<select id="university" name="university">
+    <option value="ubc">UBC</option>
+    <option value="dal">Dalhousie</option>
+</select>
+</td>
+</h1>
+
+<div id="bookinglist">
+
+    <span class="nav">
+    <select id="day" name="day">
+        <option value="Sunday">Sunday</option>
+        <option value="Monday">Monday</option>
+        <option value="Tuesday">Tuesday</option>
+        <option value="Wednesday">Wednesday</option>
+        <option value="Thursday">Thursday</option>
+        <option value="Friday">Friday</option>
+        <option value="Saturday">Saturday</option>
+    </select>
+    <input type="text" class="fuzzy-search" placeholder="Fuzzy search"/>
+    <input type="text" class="search" placeholder="Literal search"/>
+    </span>
+    <!--<button class="sort" data-sort="room">
+        Sort by Room
+    </button>
+    <button class="sort" data-sort="subject">
+        Sort by Subject
+    </button>
+    <button class="sort" data-sort="starttime">
+        Sort by Start Time
+    </button>
+    <button class="sort" data-sort="endtime">
+        Sort by End Time
+    </button>-->
+
+    <table>
+        <thead>
+        <th class="sort" data-sort="room">
+            <button>Room</button>
+        </th>
+        <th class="sort" data-sort="subject">
+            <button>Subject</button>
+        </th>
+        <th class="sort" data-sort="starttime">
+            <button>Start Time</button>
+        </th>
+        <th class="sort" data-sort="endtime">
+            <button>End Time</button>
+        </th>
+        </thead>
+        <tbody class="list">
+
+        </tbody>
+    </table>
+
+</div>
+
+<footer>
+    Ⓒ 2017 Peter Fajner <a href="https://github.com/PeterFajner/FreeRoomFinder">https://github.com/PeterFajner/FreeRoomFinder</a><br>
+    UBC Conversion by Eric Mikulin <a href="https://github.com/erismik/FreeRoomFinder">https://github.com/erismik/FreeRoomFinder</a>
+</footer>
+
+<script
+        src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.js"></script>
+<script type="text/javascript" src="http://jonthornton.github.io/jquery-timepicker/jquery.timepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="http://jonthornton.github.io/jquery-timepicker/jquery.timepicker.css">
+<script type="text/javascript"
+        src="http://jonthornton.github.io/jquery-timepicker/lib/bootstrap-datepicker.js"></script>
+<link rel="stylesheet" type="text/css"
+      href="http://jonthornton.github.io/jquery-timepicker/lib/bootstrap-datepicker.css">
+<link rel="stylesheet" type="text/css" href="{% static "FreeRoomFinderServer/style.css" %}">
+
+<script src="{% static "FreeRoomFinderServer/sql.js" %}"></script>
+<script src="{% static "FreeRoomFinderServer/underscore-min.js" %}"></script>
+<script src="{% static "FreeRoomFinderServer/bookings.js" %}"></script>
+</body>
+</html>

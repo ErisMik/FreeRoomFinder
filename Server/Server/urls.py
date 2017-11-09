@@ -25,5 +25,5 @@ urlpatterns = [
     #url(r"part", views.partial_refresh),
     url(r"empty", views.empty),
     url(r"bookings", views.bookings),
-    url(r"", views.empty),
+    url(r"", views.main),
 ]

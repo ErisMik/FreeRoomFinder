@@ -3,61 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Room Bookings</title>
+    <title>Empty Classrooms</title>
 </head>
 <body>
 {% load static %}
 
-<h1>Room Bookings at
-<td>
-<select id="university" name="university">
-    <option value="ubc">UBC</option>
-    <option value="dal">Dalhousie</option>
-</select>
-</td>
-</h1>
-
-<div id="bookinglist">
-
-    <span class="nav">
-    <select id="day" name="day">
-        <option value="Sunday">Sunday</option>
-        <option value="Monday">Monday</option>
-        <option value="Tuesday">Tuesday</option>
-        <option value="Wednesday">Wednesday</option>
-        <option value="Thursday">Thursday</option>
-        <option value="Friday">Friday</option>
-        <option value="Saturday">Saturday</option>
+<header class="container-fluid">
+    <h1 id="sparam">
+        Empty Classrooms at
+        <select id="university" name="university">
+            <option value="ubc">UBC</option>
+            <option value="dal">Dalhousie</option>
+        </select><br>
+        for
+        <input id="time" name="time" size="5"><br>
+        on
+        <select id="day" name="day">
+            <option value="Sunday">Sunday</option>
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+            <option value="Saturday">Saturday</option>
+        </select>
+    </h1>
+    <p style="font-style: italic;">Currently empty or empty within <input id="tfuzz" name="tfuzz" value="10" size="2"> minutes</p>
+    <button class="btn btn-primary" type="button" id="timenow">Reset Time</button>
+    <select id="view" name="view" disabled>
+        <option value="table">Table</option>
+        <option value="map">Map</option>
+        <option value="gantt">Burndown</option>
     </select>
-    <input type="text" class="fuzzy-search" placeholder="Fuzzy search"/>
-    <input type="text" class="search" placeholder="Literal search"/>
-    </span>
-    <!--<button class="sort" data-sort="room">
-        Sort by Room
-    </button>
-    <button class="sort" data-sort="subject">
-        Sort by Subject
-    </button>
-    <button class="sort" data-sort="starttime">
-        Sort by Start Time
-    </button>
-    <button class="sort" data-sort="endtime">
-        Sort by End Time
-    </button>-->
+</header>
 
-    <table>
-        <thead>
+<div id="searchsection" class="container-fluid">
+    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#advancedSearch" aria-expanded="false" aria-controls="advancedSearch" disabled hidden>Advanced Search</button>
+
+    <div class="collapse" id="advancedSearch">
+        <div class="card card-body">
+            <select class="custom-select">
+                <option value="1">Small</option>
+                <option value="2">Medium</option>
+                <option value="3">Large</option>
+            </select>
+
+            <div class="form-check form-check-inline">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1">
+                    Loose Chairs
+                </label>
+            </div>
+            <div class="form-check form-check-inline">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="option2">
+                    Tables
+                </label>
+            </div>
+            <div class="form-check form-check-inline">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="checkbox" id="inlineCheckbox3" value="option3">
+                    Projector
+                </label>
+            </div>
+
+            <input id="search" type="text" class="search" placeholder="Literal search"/>
+        </div>
+    </div>
+</div>
+
+<div id="emptylist" class="container-fluid">
+    <input type="text" class="fuzzy-search" placeholder="Search"/>
+    <table class="table table-striped">
+        <thead class="thead-light">
         <th class="sort" data-sort="room">
-            <button>Room</button>
+            <button class="btn btn-primary" type="button">Room (AZ)</button>
+            <button class="btn btn-primary" type="button" disabled>Room (km)</button>
         </th>
-        <th class="sort" data-sort="subject">
-            <button>Subject</button>
+        <th class="sort" data-sort="last_end_time">
+            <button class="btn btn-primary" type="button">Last Class Ended</button>
         </th>
-        <th class="sort" data-sort="starttime">
-            <button>Start Time</button>
-        </th>
-        <th class="sort" data-sort="endtime">
-            <button>End Time</button>
+        <th class="sort" data-sort="next_start_time">
+            <button class="btn btn-primary" type="button">Next Class Starts</button>
         </th>
         </thead>
         <tbody class="list">
@@ -72,19 +99,19 @@
     UBC Conversion by Eric Mikulin <a href="https://github.com/erismik/FreeRoomFinder">https://github.com/erismik/FreeRoomFinder</a>
 </footer>
 
-<script
-        src="https://code.jquery.com/jquery-3.2.1.min.js"
-        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-        crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.js"></script>
-<script type="text/javascript" src="http://jonthornton.github.io/jquery-timepicker/jquery.timepicker.js"></script>
-<link rel="stylesheet" type="text/css" href="http://jonthornton.github.io/jquery-timepicker/jquery.timepicker.css">
-<script type="text/javascript"
-        src="http://jonthornton.github.io/jquery-timepicker/lib/bootstrap-datepicker.js"></script>
-<link rel="stylesheet" type="text/css"
-      href="http://jonthornton.github.io/jquery-timepicker/lib/bootstrap-datepicker.css">
-<link rel="stylesheet" type="text/css" href="{% static "FreeRoomFinderServer/style.css" %}">
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+
+<script type="text/javascript" src="//jonthornton.github.io/jquery-timepicker/jquery.timepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="http://jonthornton.github.io/jquery-timepicker/jquery.timepicker.css">
+<script type="text/javascript" src="//jonthornton.github.io/jquery-timepicker/lib/bootstrap-datepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="http://jonthornton.github.io/jquery-timepicker/lib/bootstrap-datepicker.css">
+
+<link rel="stylesheet" type="text/css" href="{% static "FreeRoomFinderServer/mainstyle.css" %}">
 <script src="{% static "FreeRoomFinderServer/sql.js" %}"></script>
 <script src="{% static "FreeRoomFinderServer/underscore-min.js" %}"></script>
 <script src="{% static "FreeRoomFinderServer/main.js" %}"></script>

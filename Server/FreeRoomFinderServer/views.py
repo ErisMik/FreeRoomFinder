@@ -19,6 +19,8 @@ def refresh(request):
     Scrape.register_all_pages_in_subject(subject="ANAT", year=2017, semester="Fall", campus="Halifax")
     return HttpResponse("Success")"""
 
+def main(request):
+    return render(request, "FreeRoomFinderServer/main.html", context=None)
 
 def db(request):
     db_path = settings.DATABASES["default"]["NAME"]
@@ -29,7 +31,7 @@ def db(request):
 
 
 def bookings(request):
-    return render(request, "FreeRoomFinderServer/main.html", context=None)
+    return render(request, "FreeRoomFinderServer/bookings.html", context=None)
 
 
 def api(request):
