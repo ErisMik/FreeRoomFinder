@@ -14,24 +14,8 @@ class ubc_Scrape:
     course_url = "https://courses.students.ubc.ca/cs/main?pname=subjarea&tname=subjareas&req=3&dept={subject}&course={cid}"
     section_url = "https://courses.students.ubc.ca/cs/main?pname=subjarea&tname=subjareas&req=5&dept={subject}&course={cid}&section={section}"
 
-    subjects = ["AANB", "ACAM", "ADHE", "AFST", "AGEC", "ANAT", "ANSC", "ANTH", "APBI", "APPP", "APSC", "ARBC", "ARC", "ARCH", "ARCL",
-               "ARST", "ARTH", "ARTS", "ASIA", "ASIC", "ASLA", "ASTR", "ASTU", "ATSC", "AUDI", "BA", "BAAC", "BABS", "BAEN", "BAFI",
-                "BAHC", "BAHR", "BAIM", "BAIT", "BALA", "BAMA", "BAMS", "BAPA", "BASC", "BASD", "BASM", "BATL", "BAUL", "BIOC", "BIOF",
-                "BIOL", "BIOT", "BMEG", "BOTA", "BRDG", "BUSI", "CAPS", "CCFI", "CCST", "CDST", "CEEN", "CELL", "CENS", "CHBE", "CHEM",
-                "CHIL", "CHIN", "CICS", "CIVL", "CLCH", "CLST", "CNPS", "CNRS", "CNTO", "COEC", "COGS", "COHR", "COMM", "COMR", "CONS",
-                "CPEN", "CPSC", "CRWR", "CSIS", "CSPW", "CTLN", "DANI", "DENT", "DERM", "DES", "DHYG", "DMED", "DSCI", "ECED", "ECON",
-                "ECPS", "EDCP", "EDST", "EDUC", "EECE", "ELEC", "ELI", "EMBA", "ENDS", "ENGL", "ENPH", "ENPP", "ENVR", "EOSC", "EPSE",
-                "ETEC", "EXCH", "EXGR", "FACT", "FEBC", "FHIS", "FIPR", "FISH", "FIST", "FMPR", "FMST", "FNEL", "FNH", "FNIS", "FOOD",
-                "FOPR", "FRE", "FREN", "FRSI", "FRST", "FSCT", "GBPR", "GEM", "GENE", "GEOB", "GEOG", "GERM", "GPP", "GREK", "GRS", "GRSJ",
-                "GSAT", "HEBR", "HESO", "HGSE", "HINU", "HIST", "HPB", "HUNU", "IAR", "IEST", "IGEN", "INDE", "INDO", "INDS", "INFO", "ISCI",
-                "ITAL", "ITST", "IWME", "JAPN", "JRNL", "KIN", "KORN", "LAIS", "LARC", "LASO", "LAST", "LATN", "LAW", "LFS", "LIBE", "LIBR",
-                "LING", "LLED", "LWS", "MATH", "MDVL", "MECH", "MEDD", "MEDG", "MEDI", "MGMT", "MICB", "MIDW", "MINE", "MRNE", "MTRL",
-                "MUSC", "NAME", "NEST", "NEUR", "NRSC", "NURS", "OBMS", "OBST", "OHS", "ONCO", "OPTH", "ORNT", "ORPA", "OSOT", "PAED",
-                "PATH", "PCTH", "PERS", "PHAR", "PHIL", "PHRM", "PHTH", "PHYL", "PHYS", "PLAN", "PLNT", "POLI", "POLS", "PORT",
-                "PSYC", "PSYT", "PUNJ", "RADI", "RELG", "RES", "RGLA", "RHSC", "RMST", "RSOT", "RUSS", "SANS", "SCAN", "SCIE", "SEAL",
-                "SGES", "SLAV", "SOAL", "SOCI", "SOIL", "SOWK", "SPAN", "SPHA", "SPPH", "STAT", "STS", "SURG", "SWED", "TEST", "THTR",
-                "TIBT", "TRSC", "UDES", "UFOR", "UKRN", "URO", "URST", "URSY", "VANT", "VGRD", "VISA", "VRHC", "VURS", "WOOD",
-                "WRDS", "WRIT", "ZOOL"]
+    subjects = []
+
     day_conversion = {
         "Mo": "Monday",
         "mo": "Monday",
@@ -175,6 +159,25 @@ class ubc_Scrape:
         return rooms_found
 
     @staticmethod
+    def scrape_all_subjects(url):
+        """
+        """
+        found_subjects = []
+
+        page = ubc_Scrape.get_page(url)
+        body = page.body
+        table = body.find("table", class_="table", recursive=True)
+        tbody = table.find("tbody", recursive=True)
+        rows = tbody.find_all("tr", recursive=True)
+
+        for row in rows:
+            data = row.find("a", recursive=True)
+            if data:
+                found_subjects.append(data.text)
+
+        ubc_Scrape.subjects = found_subjects
+
+    @staticmethod
     def get_page(url):
         """
         Takes a url and returns a BeautifulSoup object of the page
@@ -210,6 +213,7 @@ class ubc_Scrape:
 
     @staticmethod
     def register_all_subjects_in_semester(year, semester, campus):
+        ubc_Scrape.scrape_all_subjects(ubc_Scrape.base_url)
         for subject in ubc_Scrape.subjects:
             ubc_Scrape.register_subject(subject, year, semester, campus)
             print("{} done for {} in {} {}".format(subject, campus, semester, year))
