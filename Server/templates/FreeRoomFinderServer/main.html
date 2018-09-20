@@ -13,7 +13,6 @@
         Empty Classrooms at
         <select id="university" name="university">
             <option value="ubc">UBC</option>
-            <option value="dal">Dalhousie</option>
         </select><br>
         for
         <input id="time" name="time" size="5"><br>
@@ -111,9 +110,13 @@
 <script type="text/javascript" src="//jonthornton.github.io/jquery-timepicker/lib/bootstrap-datepicker.js"></script>
 <link rel="stylesheet" type="text/css" href="http://jonthornton.github.io/jquery-timepicker/lib/bootstrap-datepicker.css">
 
-<link rel="stylesheet" type="text/css" href="{% static "FreeRoomFinderServer/mainstyle.css" %}">
-<script src="{% static "FreeRoomFinderServer/sql.js" %}"></script>
+<!-- <script src="{% static "FreeRoomFinderServer/sql.js" %}"></script> -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/0.4.0/js/sql.js"></script>
+
 <script src="{% static "FreeRoomFinderServer/underscore-min.js" %}"></script>
 <script src="{% static "FreeRoomFinderServer/main.js" %}"></script>
+
+<link rel="stylesheet" type="text/css" href="{% static "FreeRoomFinderServer/mainstyle.css" %}">
+
 </body>
 </html>

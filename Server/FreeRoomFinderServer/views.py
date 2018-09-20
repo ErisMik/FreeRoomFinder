@@ -10,14 +10,8 @@ import json
 
 
 def refresh(request):
-    Scrape.register_all_subjects_in_semester(university="ubc", year=2017, semester="Fall", campus="Vancouver")
-    Scrape.register_all_subjects_in_semester(university="dal", year=2017, semester="Fall", campus="Halifax")
+    Scrape.register_all_subjects_in_semester(university="ubc", year=2018, semester="Fall", campus="Vancouver")
     return HttpResponse("Success")
-
-
-"""def partial_refresh(request):
-    Scrape.register_all_pages_in_subject(subject="ANAT", year=2017, semester="Fall", campus="Halifax")
-    return HttpResponse("Success")"""
 
 def main(request):
     return render(request, "FreeRoomFinderServer/main.html", context=None)
@@ -28,11 +22,6 @@ def db(request):
         response = HttpResponse(f, content_type='application/sql')
         response['Content-Disposition'] = 'attachment; filename="room_schedule.sqlite"'
         return response
-
-
-def bookings(request):
-    return render(request, "FreeRoomFinderServer/bookings.html", context=None)
-
 
 def api(request):
     search_term = request.GET.get("search", "")
@@ -79,12 +68,4 @@ def api(request):
         empty_rooms: EmptyRooms = Empty.find_empty(university=university,time=time, weekday=weekday, semester=semester, year=year)
         empty_rooms_json: str = json.dumps(empty_rooms, sort_keys=True, indent=4)
         return HttpResponse(empty_rooms_json)
-
-
-def empty(request):
-    """
-    A page that shows empty rooms
-    :param request: 
-    :return: 
-    """
-    return render(request, "FreeRoomFinderServer/empty.html", context=None)
+1
