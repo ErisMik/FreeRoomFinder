@@ -1,12 +1,13 @@
 from urllib.request import urlopen
 import bs4
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Comment
 from FreeRoomFinderServer.models import Room, RoomBookedSlot
 import re
 import datetime
 from time import sleep
-
 import sys
+
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 class ubc_Scrape:
     base_url = "https://courses.students.ubc.ca/cs/main?pname=subjarea&tname=subjareas&req=0"
@@ -17,19 +18,12 @@ class ubc_Scrape:
     subjects = []
 
     day_conversion = {
-        "Mo": "Monday",
         "mo": "Monday",
-        "Tu": "Tuesday",
         "tu": "Tuesday",
-        "We": "Wednesday",
         "we": "Wednesday",
-        "Th": "Thursday",
         "th": "Thursday",
-        "Fr": "Friday",
         "fr": "Friday",
-        "Sa": "Saturday",
         "sa": "Saturday",
-        "Su": "Sunday",
         "su": "Sunday",
     }
     delay = 0.00
@@ -43,8 +37,13 @@ class ubc_Scrape:
         body = page.body
         table = body.find("table", class_="table-striped", recursive=True)
         tbody = table.find("tbody", recursive=True)
+
+        # Remove comments from table body:
+        for element in tbody(text=lambda text: isinstance(text, Comment)):
+            element.extract()
+
         rows = tbody.find_all("tr", recursive=True)
-        # print(rows, file=sys.stderr)
+
 
         for row in rows:
             row = str(row).split("<td>")
@@ -57,7 +56,7 @@ class ubc_Scrape:
 
             days = row[1].split()
             # print(row, file=sys.stderr)
-            days = [ubc_Scrape.day_conversion[day[:2]] for day in days]
+            days = [ubc_Scrape.day_conversion[day[:2].lower()] for day in days]
 
             start_time = {
                 "h": int(row[2].split(":")[0]),
@@ -129,10 +128,16 @@ class ubc_Scrape:
                 sections.append(data.text.split()[-1])
                 # break  ##
 
+        pool = ThreadPoolExecutor(max_workers=2)
+        futures = []
+
         for section in sections:
             url = ubc_Scrape.section_url.format(subject=subject, cid=course, section=section)
             page = ubc_Scrape.get_page(url)
-            rooms_found += ubc_Scrape.section_to_rooms(page, subject, course, section)
+            futures.append(pool.submit(ubc_Scrape.section_to_rooms, page, subject, course, section))
+
+        for rooms in as_completed(futures):
+            rooms_found += rooms.result()
 
         return rooms_found
 
