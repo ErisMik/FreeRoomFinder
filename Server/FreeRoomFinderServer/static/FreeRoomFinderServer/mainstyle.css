@@ -1,0 +1,53 @@
+#sparam select {
+    border: 0px;
+    outline: 0px;
+
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: 0px;
+
+    border-bottom: 2px solid #00A7E1;
+    background-color: white;
+
+    color: #00A7E1;
+    font-weight: bold;
+}
+
+header input {
+    border: 0px;
+    outline: 0px;
+
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: 0px;
+
+    border-bottom: 2px solid #00A7E1;
+    background-color: white;
+
+    color: #00A7E1;
+    font-weight: bold;
+}
+
+header #tfuzz {
+    font-style: italic; 
+    font-weight: bold; 
+}
+
+.container-fluid {
+    margin-bottom: 20px;
+}
+
+.container-fluid input {
+    margin-bottom: 10px;
+}
+
+.btn {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+
+    white-space: normal !important;
+    word-wrap: break-word; 
+}
