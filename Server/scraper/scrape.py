@@ -78,7 +78,6 @@ class ubc_Scrape:
             )
             room_found = True
 
-            # TODO: Fix semester stuff
             # register a room booking for each weekday
             for day in days:
                 if "1" in row[0]:
@@ -89,7 +88,7 @@ class ubc_Scrape:
                         occasion=subject+" "+course+" "+section,
                         room=room_obj,
                         semester="Fall",
-                        year=2017,
+                        year=2018,
                         weekday=day
                     )
                     slot.save()
@@ -101,7 +100,7 @@ class ubc_Scrape:
                         occasion=subject+" "+course+" "+section,
                         room=room_obj,
                         semester="Winter",
-                        year=2017,
+                        year=2018,
                         weekday=day
                     )
                     slot.save()
