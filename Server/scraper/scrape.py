@@ -132,11 +132,12 @@ class ubc_Scrape:
 
         for section in sections:
             url = ubc_Scrape.section_url.format(subject=subject, cid=course, section=section)
-            page = ubc_Scrape.get_page(url)
-            futures.append(pool.submit(ubc_Scrape.section_to_rooms, page, subject, course, section))
+            futures.append(pool.submit(ubc_Scrape.get_page, url, (subject, course, section) ))
 
-        for rooms in as_completed(futures):
-            rooms_found += rooms.result()
+        for page_thread in as_completed(futures):
+            page, callback = page_thread.result()
+            subject, course, section = callback
+            ubc_Scrape.section_to_rooms(page, subject, course, section)
 
         return rooms_found
 
@@ -182,16 +183,26 @@ class ubc_Scrape:
         ubc_Scrape.subjects = found_subjects
 
     @staticmethod
-    def get_page(url):
+    def get_page(url, callback=None):
         """
         Takes a url and returns a BeautifulSoup object of the page
         :param url:
         :return:
         """
         sleep(ubc_Scrape.delay) # prevent spamming the page
-        page = urlopen(url)  # download the page
+
+        for attempt in range(10):
+            try:
+                page = urlopen(url)  # download the page
+            except:
+                continue
+            break
+
         soup = BeautifulSoup(page, "html5lib")  # convert it to a BeautifulSoup data structure
-        return soup
+        if callback:
+            return (soup, callback)
+        else:
+            return soup
 
     @staticmethod
     def register_subject(subject, year, semester, campus):
