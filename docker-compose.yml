@@ -1,0 +1,11 @@
+version: '3'
+services:
+  frf:
+    build: .
+    command: ['python', 'manage.py', 'runserver', "0.0.0.0:8000"]
+    stdin_open: true
+    tty: true
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./Server:/usr/src/frf
