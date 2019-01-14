@@ -1,3 +1,5 @@
 Django==2.1
 beautifulsoup4==4.6.3
 html5lib
+gunicorn
+django-heroku
