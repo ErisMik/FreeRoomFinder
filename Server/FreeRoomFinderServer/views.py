@@ -54,13 +54,15 @@ def api(request):
         year = datetime.datetime.now().year
 
         # semester
-        month = datetime.datetime.now().month
-        if month <= 4: 
-            semester = "Winter" 
-        elif month <= 8: 
-            semester = "Summer" 
-        else: 
-            semester = "Fall" 
+        # month = datetime.datetime.now().month
+        # if month <= 4:
+        #     semester = "Winter"
+        # elif month <= 8:
+        #     semester = "Summer"
+        # else:
+        #     semester = "Fall"
+
+        semester = "Winter"
 
         # University
         university = request.GET.get("university", "")
@@ -68,4 +70,3 @@ def api(request):
         empty_rooms: EmptyRooms = Empty.find_empty(university=university,time=time, weekday=weekday, semester=semester, year=year)
         empty_rooms_json: str = json.dumps(empty_rooms, sort_keys=True, indent=4)
         return HttpResponse(empty_rooms_json)
-1

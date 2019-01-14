@@ -137,7 +137,7 @@ class ubc_Scrape:
         for page_thread in as_completed(futures):
             page, callback = page_thread.result()
             subject, course, section = callback
-            ubc_Scrape.section_to_rooms(page, subject, course, section)
+            rooms_found += ubc_Scrape.section_to_rooms(page, subject, course, section)
 
         return rooms_found
 
