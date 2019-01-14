@@ -52,17 +52,16 @@ def api(request):
 
         # set the year
         year = datetime.datetime.now().year
+        year = 2018
 
         # semester
-        # month = datetime.datetime.now().month
-        # if month <= 4:
-        #     semester = "Winter"
-        # elif month <= 8:
-        #     semester = "Summer"
-        # else:
-        #     semester = "Fall"
-
-        semester = "Winter"
+        month = datetime.datetime.now().month
+        if month <= 4:
+            semester = "Winter"
+        elif month <= 8:
+            semester = "Summer"
+        else:
+            semester = "Fall"
 
         # University
         university = request.GET.get("university", "")
