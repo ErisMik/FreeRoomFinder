@@ -1,4 +1,4 @@
-Django==2.2.28
+Django==3.2.25
 beautifulsoup4==4.6.3
 html5lib
 gunicorn
